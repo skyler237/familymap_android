@@ -67,10 +67,7 @@ public class PersonActivity extends AppCompatActivity {
                 mCurrentPerson.relatedEvents) {
             events.add(event);
         }
-        List<Person> family = FamilyMapModel.SINGLETON.currentUser.children;
-        family.add(FamilyMapModel.SINGLETON.currentUser.father);
-        family.add(FamilyMapModel.SINGLETON.currentUser.mother);
-        family.add(FamilyMapModel.SINGLETON.currentUser.spouse);
+        List<Person> family = mCurrentPerson.getFamily();
         ExpandableListAdapter listAdapter = new ExpandableListAdapter(events, family);
         mExpandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
         mExpandableListView.setAdapter(listAdapter);
@@ -318,7 +315,8 @@ public class PersonActivity extends AppCompatActivity {
 
                 case FAMILY_GROUP_INDEX:
                     Person person = (Person) getChild(groupPosition,childPosition);
-                    if(convertView == null) {
+                    // Check to see if we can reuse the view - if not, create a new one
+                    if(convertView == null || convertView.findViewById(R.id.person_item_relationship_text) == null) {
                         LayoutInflater layoutInflater = (LayoutInflater.from(PersonActivity.this));
                         convertView = layoutInflater.inflate(R.layout.list_item_person, null);
 
@@ -331,7 +329,13 @@ public class PersonActivity extends AppCompatActivity {
                         personNameText.setText(person.getFirstName() + " " + person.getLastName());
 
                         TextView personRelationshipText = (TextView) convertView.findViewById(R.id.person_item_relationship_text);
-                        personRelationshipText.setText(person.getRelationshipTo(mCurrentPerson).toString());
+                        Person.Relationship relationship = person.getRelationshipTo(mCurrentPerson);
+                        if(relationship != null) {
+                            personRelationshipText.setText(relationship.toString());
+                        }
+                        else {
+                            personRelationshipText.setText("Relationship was null...");
+                        }
                     }
                     break;
 

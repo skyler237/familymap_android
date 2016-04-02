@@ -38,6 +38,22 @@ public class Person {
 
     }
 
+    public List<Person> getFamily() {
+        List<Person> family = new ArrayList<>();
+        if(spouse != null) {
+            family.add(spouse);
+        }
+        if(father != null) {
+            family.add(father);
+        }
+        if(mother != null) {
+            family.add(mother);
+        }
+        family.addAll(children);
+
+        return family;
+    }
+
 
     public enum Relationship {FATHER, MOTHER, SPOUSE, CHILD;
 
