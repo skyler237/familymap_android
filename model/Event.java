@@ -37,6 +37,12 @@ public class Event implements Comparable {
         setYear(jsonObject.getString("year"));
         setDescendant(jsonObject.getString("descendant"));
         setColor();
+
+        // Add this event to the appropriate person
+        Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(personId);
+        if(person != null) {
+            person.addRelatedEvent(this);
+        }
     }
 
     @Override

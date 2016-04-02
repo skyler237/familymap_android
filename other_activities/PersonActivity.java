@@ -64,7 +64,7 @@ public class PersonActivity extends AppCompatActivity {
 
         List<Event> events = new ArrayList<>();
         for (Event event :
-                FamilyMapModel.SINGLETON.getUserEvents()) {
+                mCurrentPerson.relatedEvents) {
             events.add(event);
         }
         List<Person> family = FamilyMapModel.SINGLETON.currentUser.children;
