@@ -297,7 +297,8 @@ public class PersonActivity extends AppCompatActivity {
             switch (groupPosition) {
                 case EVENT_GROUP_INDEX:
                     Event event = (Event) getChild(groupPosition,childPosition);
-                    if(convertView == null) {
+                    // Check to see if we can reuse the view - if not, create a new one
+                    if(convertView == null || convertView.findViewById(R.id.eventItemNameText) == null) {
                         LayoutInflater layoutInflater = (LayoutInflater.from(PersonActivity.this));
                         convertView = layoutInflater.inflate(R.layout.list_item_event, null);
 
