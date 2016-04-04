@@ -124,33 +124,32 @@ public class Person {
     }
 
     public Relationship getRelationshipTo(Person otherPerson) {
+        // todo: sometimes children return a null relationship
         // Check if the "otherPerson" is related to this person
         if(this.fatherId != null && this.motherId != null ) {
-            if ((this.fatherId.equals(otherPerson.fatherId)) ||
+            if ((this.fatherId.equals(otherPerson.personId)) ||
                     (this.motherId.equals(otherPerson.personId))) {
                 // This person is the child of other person
                 return CHILD;
             }
         }
-        else if (this.spouseId != null && otherPerson.spouseId != null ) {
+        if (this.spouseId != null && otherPerson.spouseId != null ) {
             if ((this.spouseId.equals(otherPerson.personId)) ||
                     (this.personId.equals(otherPerson.spouseId))) {
                 return SPOUSE;
             }
         }
-        else if(otherPerson.fatherId != null ) {
+        if(otherPerson.fatherId != null ) {
             if (otherPerson.fatherId.equals(this.personId)) {
                 return FATHER;
             }
         }
-        else if(otherPerson.motherId != null) {
+        if(otherPerson.motherId != null) {
             if (otherPerson.motherId.equals(this.personId)) {
                 return MOTHER;
             }
         }
-        else {
-            return null;
-        }
+
         return null;
     }
 

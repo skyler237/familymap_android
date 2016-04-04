@@ -63,6 +63,7 @@ public class PersonActivity extends AppCompatActivity {
         mPersonGenderText.setText(mCurrentPerson.getGender().toString());
 
         List<Event> events = new ArrayList<>();
+        // Todo: the birth event is often repeated just before death
         for (Event event :
                 mCurrentPerson.relatedEvents) {
             events.add(event);
@@ -317,7 +318,9 @@ public class PersonActivity extends AppCompatActivity {
                 case FAMILY_GROUP_INDEX:
                     Person person = (Person) getChild(groupPosition,childPosition);
                     // Check to see if we can reuse the view - if not, create a new one
-                    if(convertView == null || convertView.findViewById(R.id.person_item_relationship_text) == null) {
+//                    if(convertView == null || ((TextView) convertView.findViewById(R.id.person_info_first_name_text) == null) {
+                    if(true) {
+                        // todo: sometimes the wrong view shows up here, displaying repeated info, but still links to the right person
                         LayoutInflater layoutInflater = (LayoutInflater.from(PersonActivity.this));
                         convertView = layoutInflater.inflate(R.layout.list_item_person, null);
 
