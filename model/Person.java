@@ -38,6 +38,24 @@ public class Person {
 
     }
 
+    public void setFather(Person father) {
+        this.father = father;
+        father.addChild(this);
+    }
+
+    private void addChild(Person person) {
+        children.add(person);
+    }
+
+    public void setMother(Person mother) {
+        this.mother = mother;
+        mother.addChild(this);
+    }
+
+    public void setSpouse(Person spouse) {
+        this.spouse = spouse;
+    }
+
 
     public enum Relationship {FATHER, MOTHER, SPOUSE, CHILD;
 
@@ -106,34 +124,32 @@ public class Person {
     }
 
     public Relationship getRelationshipTo(Person otherPerson) {
-        // TODO: Create this relationship function - check the two person IDs
+        // todo: sometimes children return a null relationship
         // Check if the "otherPerson" is related to this person
         if(this.fatherId != null && this.motherId != null ) {
-            if ((this.fatherId.equals(otherPerson.fatherId)) ||
+            if ((this.fatherId.equals(otherPerson.personId)) ||
                     (this.motherId.equals(otherPerson.personId))) {
                 // This person is the child of other person
                 return CHILD;
             }
         }
-        else if (this.spouseId != null && otherPerson.spouseId != null ) {
+        if (this.spouseId != null && otherPerson.spouseId != null ) {
             if ((this.spouseId.equals(otherPerson.personId)) ||
                     (this.personId.equals(otherPerson.spouseId))) {
                 return SPOUSE;
             }
         }
-        else if(otherPerson.fatherId != null ) {
+        if(otherPerson.fatherId != null ) {
             if (otherPerson.fatherId.equals(this.personId)) {
                 return FATHER;
             }
         }
-        else if(otherPerson.motherId != null) {
+        if(otherPerson.motherId != null) {
             if (otherPerson.motherId.equals(this.personId)) {
                 return MOTHER;
             }
         }
-        else {
-            return null;
-        }
+
         return null;
     }
 
@@ -144,23 +160,45 @@ public class Person {
             return;
         }
         switch (relationship) {
-            case FATHER:
-                father = person;
+            case FATHER: // this person is other person's father -- add that person to the children
+                children.add(person);
                 return;
-            case MOTHER:
-                mother = person;
+            case MOTHER: // this person is other person's mother -- add that person to the children
+                children.add(person);
             case SPOUSE:
                 spouse = person;
                 break;
             case CHILD:
-                children.add(person);
+                if(fatherId.equals(person.getPersonId())) {
+                    father = person;
+                }
+                else if (motherId.equals(person.getPersonId())) {
+                    mother = person;
+                }
                 break;
         }
+    }
+
+    public List<Person> getFamily() {
+        List<Person> family = new ArrayList<>();
+        if(spouseId != null) {
+            family.add(FamilyMapModel.SINGLETON.getPerson(spouseId));
+        }
+        if(fatherId != null) {
+            family.add(father);
+        }
+        if(mother != null) {
+            family.add(mother);
+        }
+        family.addAll(children);
+
+        return family;
     }
 
     public void addRelatedEvent(Event event) {
         relatedEvents.add(event);
     }
+
 
     public String getPersonId() {
         return personId;

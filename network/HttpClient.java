@@ -16,6 +16,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 
 import com.skyler.android.familymap.model.Event;
+import com.skyler.android.familymap.model.FamilyMapModel;
 import com.skyler.android.familymap.model.Person;
 import com.skyler.android.familymap.model.User;
 
@@ -216,8 +217,10 @@ public class HttpClient {
                     // Gather all people info
                     for(int i = 0; i < dataArray.length(); i++) {
                         Person person = new Person(dataArray.getJSONObject(i));
-                        user.addRelatedPerson(person);
+                        FamilyMapModel.SINGLETON.addPerson(person);
+
                     }
+                    FamilyMapModel.SINGLETON.populateFamilyData();
 
                     return true;
 

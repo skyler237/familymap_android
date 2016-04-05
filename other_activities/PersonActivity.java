@@ -63,14 +63,12 @@ public class PersonActivity extends AppCompatActivity {
         mPersonGenderText.setText(mCurrentPerson.getGender().toString());
 
         List<Event> events = new ArrayList<>();
+        // Todo: the birth event is often repeated just before death
         for (Event event :
-                FamilyMapModel.SINGLETON.getUserEvents()) {
+                mCurrentPerson.relatedEvents) {
             events.add(event);
         }
-        List<Person> family = FamilyMapModel.SINGLETON.currentUser.children;
-        family.add(FamilyMapModel.SINGLETON.currentUser.father);
-        family.add(FamilyMapModel.SINGLETON.currentUser.mother);
-        family.add(FamilyMapModel.SINGLETON.currentUser.spouse);
+        List<Person> family = mCurrentPerson.getFamily();
         ExpandableListAdapter listAdapter = new ExpandableListAdapter(events, family);
         mExpandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
         mExpandableListView.setAdapter(listAdapter);
@@ -297,41 +295,45 @@ public class PersonActivity extends AppCompatActivity {
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 
+            LayoutInflater layoutInflater;
             switch (groupPosition) {
                 case EVENT_GROUP_INDEX:
                     Event event = (Event) getChild(groupPosition,childPosition);
-                    if(convertView == null) {
-                        LayoutInflater layoutInflater = (LayoutInflater.from(PersonActivity.this));
-                        convertView = layoutInflater.inflate(R.layout.list_item_event, null);
+                    layoutInflater = (LayoutInflater.from(PersonActivity.this));
+                    convertView = layoutInflater.inflate(R.layout.list_item_event, null);
 
-                        Drawable markerIcon = new IconDrawable(PersonActivity.this, Iconify.IconValue.fa_map_marker).colorRes(R.color.marker_grey).sizeDp(40);
-                        ImageView markerIconImage = (ImageView) convertView.findViewById(R.id.event_item_marker_icon);
-                        markerIconImage.setImageDrawable(markerIcon);
+                    Drawable markerIcon = new IconDrawable(PersonActivity.this, Iconify.IconValue.fa_map_marker).colorRes(R.color.marker_grey).sizeDp(40);
+                    ImageView markerIconImage = (ImageView) convertView.findViewById(R.id.event_item_marker_icon);
+                    markerIconImage.setImageDrawable(markerIcon);
 
-                        TextView eventInfoText = (TextView) convertView.findViewById(R.id.eventItemInfoText);
-                        eventInfoText.setText(event.getInfoText());
+                    TextView eventInfoText = (TextView) convertView.findViewById(R.id.eventItemInfoText);
+                    eventInfoText.setText(event.getInfoText());
 
-                        TextView eventNameText = (TextView) convertView.findViewById(R.id.eventItemNameText);
-                        eventNameText.setText(event.getName());
-                    }
+                    TextView eventNameText = (TextView) convertView.findViewById(R.id.eventItemNameText);
+                    eventNameText.setText(event.getName());
                     break;
 
                 case FAMILY_GROUP_INDEX:
                     Person person = (Person) getChild(groupPosition,childPosition);
-                    if(convertView == null) {
-                        LayoutInflater layoutInflater = (LayoutInflater.from(PersonActivity.this));
-                        convertView = layoutInflater.inflate(R.layout.list_item_person, null);
+                    
+                    layoutInflater = (LayoutInflater.from(PersonActivity.this));
+                    convertView = layoutInflater.inflate(R.layout.list_item_person, null);
 
 
-                        Drawable genderIcon = person.getGender().getDrawable(PersonActivity.this);
-                        ImageView genderIconImage = (ImageView) convertView.findViewById(R.id.person_item_gender_icon);
-                        genderIconImage.setImageDrawable(genderIcon);
+                    Drawable genderIcon = person.getGender().getDrawable(PersonActivity.this);
+                    ImageView genderIconImage = (ImageView) convertView.findViewById(R.id.person_item_gender_icon);
+                    genderIconImage.setImageDrawable(genderIcon);
 
-                        TextView personNameText = (TextView) convertView.findViewById(R.id.person_item_name_text);
-                        personNameText.setText(person.getFirstName() + " " + person.getLastName());
+                    TextView personNameText = (TextView) convertView.findViewById(R.id.person_item_name_text);
+                    personNameText.setText(person.getFirstName() + " " + person.getLastName());
 
-                        TextView personRelationshipText = (TextView) convertView.findViewById(R.id.person_item_relationship_text);
-                        personRelationshipText.setText(person.getRelationshipTo(mCurrentPerson).toString());
+                    TextView personRelationshipText = (TextView) convertView.findViewById(R.id.person_item_relationship_text);
+                    Person.Relationship relationship = person.getRelationshipTo(mCurrentPerson);
+                    if(relationship != null) {
+                        personRelationshipText.setText(relationship.toString());
+                    }
+                    else {
+                        personRelationshipText.setText("Relationship was null...");
                     }
                     break;
 
