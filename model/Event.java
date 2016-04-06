@@ -1,18 +1,20 @@
 package com.skyler.android.familymap.model;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by Skyler on 3/15/2016.
  */
 public class Event implements Comparable {
-    public static Set<String> eventTypes = new HashSet<>();
+    public static Set<String> eventTypes = new TreeSet<>();
 
     private String eventId;
     private String personId;
@@ -42,6 +44,7 @@ public class Event implements Comparable {
         Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(personId);
         if(person != null) {
             person.addRelatedEvent(this);
+            FamilyMapModel.SINGLETON.currentUser.addRelatedEvent(this); // Just in case -- make sure it is in the model
         }
     }
 
@@ -51,6 +54,11 @@ public class Event implements Comparable {
         str += getInfoText();
 
         return str;
+    }
+
+    @Override
+    public int hashCode() {
+        return eventId.hashCode();
     }
 
     public String getEventId() {
@@ -178,7 +186,18 @@ public class Event implements Comparable {
             String otherYear = ((Event)another).getYear();
             if(year != null) {
                 if(otherYear != null) { // Both have years - return the comparison
-                    return year.compareTo(otherYear);
+                    if(year.compareTo(otherYear) == 0) {  // If the years are equal, check the descriptions
+                        int compareDescriptions = this.getDescription().compareTo(((Event)another).getDescription());
+                        if(compareDescriptions == 0) {
+                            return eventId.compareTo(((Event) another).eventId); // If descriptions are equal, compare IDs
+                        }
+                        else {
+                            return compareDescriptions;
+                        }
+                    }
+                    else {
+                        return year.compareTo(otherYear);
+                    }
                 }
                 else {
                     return THIS_COMES_FIRST;
@@ -189,7 +208,13 @@ public class Event implements Comparable {
                     return OTHER_COMES_FIRST;
                 }
                 else { // Neither have years, compare their descriptions
-                    return this.getDescription().compareTo(((Event)another).getDescription());
+                    int compareDescriptions = this.getDescription().compareTo(((Event)another).getDescription());
+                    if(compareDescriptions == 0) {
+                        return eventId.compareTo(((Event) another).eventId); // If descriptions are equal, compare IDs
+                    }
+                    else {
+                        return compareDescriptions;
+                    }
                 }
             }
         }
@@ -239,5 +264,9 @@ public class Event implements Comparable {
 
         return str;
 
+    }
+
+    public LatLng getLatLng() {
+        return new LatLng(getLatitude(), getLongitude());
     }
 }

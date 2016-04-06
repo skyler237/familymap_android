@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -83,9 +84,16 @@ public class PersonActivity extends AppCompatActivity {
                 switch (groupPosition) {
                     case EVENT_GROUP_INDEX:
                         // TODO: transfer control to Map Activity and display event
+                        Event event = (Event) parent.getExpandableListAdapter().getChild(groupPosition, childPosition);
+                        Intent intent = new Intent(getBaseContext(), MapActivity.class);
+                        intent.putExtra("EVENT_ID", event.getEventId());
+                        Log.i("PersonActivity", "EventID=" + event.getEventId());
+                        Log.i("PersonActivity", "LatLng=" + event.getLatitude() + ", " + event.getLongitude());
+                        startActivity(intent);
+                        break;
 
                     case FAMILY_GROUP_INDEX:
-                        Intent intent = new Intent(getBaseContext(), PersonActivity.class);
+                        intent = new Intent(getBaseContext(), PersonActivity.class);
                         intent.putExtra("PERSON_ID", ((Person) parent.getExpandableListAdapter().getChild(groupPosition,childPosition)).getPersonId());
                         startActivity(intent);
 
@@ -315,7 +323,7 @@ public class PersonActivity extends AppCompatActivity {
 
                 case FAMILY_GROUP_INDEX:
                     Person person = (Person) getChild(groupPosition,childPosition);
-                    
+
                     layoutInflater = (LayoutInflater.from(PersonActivity.this));
                     convertView = layoutInflater.inflate(R.layout.list_item_person, null);
 
