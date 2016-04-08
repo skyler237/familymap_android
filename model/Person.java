@@ -35,6 +35,14 @@ public class Person {
     public Person spouse;
     public List<Person> children = new ArrayList<>();
 
+    private String personId;
+    private String firstName;
+    private String lastName;
+    private Gender gender;
+    private String fatherId;
+    private String motherId;
+    private String spouseId;
+
     public Person() {
 
     }
@@ -44,18 +52,8 @@ public class Person {
         father.addChild(this);
     }
 
-    private void addChild(Person person) {
-        children.add(person);
-    }
 
-    public void setMother(Person mother) {
-        this.mother = mother;
-        mother.addChild(this);
-    }
 
-    public void setSpouse(Person spouse) {
-        this.spouse = spouse;
-    }
 
 
     public enum Relationship {FATHER, MOTHER, SPOUSE, CHILD;
@@ -104,13 +102,7 @@ public class Person {
             }
         }
     }
-    private String personId;
-    private String firstName;
-    private String lastName;
-    private Gender gender;
-    private String fatherId;
-    private String motherId;
-    private String spouseId;
+
 
 
 
@@ -196,6 +188,20 @@ public class Person {
         return family;
     }
 
+
+    private void addChild(Person person) {
+        children.add(person);
+    }
+
+    public void setMother(Person mother) {
+        this.mother = mother;
+        mother.addChild(this);
+    }
+
+    public void setSpouse(Person spouse) {
+        this.spouse = spouse;
+    }
+
     public void addRelatedEvent(Event event) {
         relatedEvents.add(event);
     }
@@ -272,5 +278,41 @@ public class Person {
             }
         }
         return desiredEvent;
+    }
+
+    /**
+     * Returns the birth event of a Person. If there is no birth event recorded, it will just return the next earliest event recorded
+     * @return - the birth event or next earliest event of this Person. returns null if no events are recorded.
+     */
+    public Event getEarliestEvent() {
+        Event earliestEvent = null;
+        for (Event event : relatedEvents) {
+            // Initially set the first event encountered as the earliest event
+            if(earliestEvent == null) {
+                earliestEvent = event;
+            }
+            // replace the earliest event if an earlier one is found
+            else if(event.getYear().compareTo(earliestEvent.getYear()) < 0) {
+                earliestEvent = event;
+            }
+        }
+
+        return earliestEvent;
+    }
+
+    /**
+     * Returns the event that chronologically follows current event
+     * @param currentEvent - the current event; we will return the event following this one
+     * @return - returns the event following <code>currentEvent</code>
+     */
+    public Event getEventFollowing(Event currentEvent) {
+        Event nextEvent = null;
+        Object[] events = relatedEvents.toArray();
+        for (int i = 0; i < events.length - 1; i++) { // Go through second to last, to look for current event
+            if(events[i] == currentEvent) {
+                nextEvent = (Event) events[i+1]; // If found, return the next event
+            }
+        }
+        return nextEvent;
     }
 }

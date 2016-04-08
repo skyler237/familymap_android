@@ -37,9 +37,9 @@ import com.skyler.android.familymap.network.HttpClient;
 public class LoginFragment extends Fragment {
     static final String DEFAULT_USERNAME = "skyler237";
     static final String DEFAULT_PASSWORD = "pw";
-    static final String DEFAULT_HOST = "192.168.1.14";
+    static final String DEFAULT_HOST = "192.168.1.15";
 //    static final String DEFAULT_HOST = "192.168.2.219";
-//    static final String DEFAULT_HOST = "10.24.66.85";
+//    static final String DEFAULT_HOST = "10.24.199.17";
     static final String DEFAULT_PORT = "8080";
 
     private OnLoginButtonPressedListener mListener;
@@ -172,7 +172,10 @@ public class LoginFragment extends Fragment {
         // Perform sign in here
 
         LoginTask loginTask = new LoginTask();
-        httpClient = new HttpClient(getServerHost(),getServerPort());
+
+
+        FamilyMapModel.SINGLETON.httpClient = new HttpClient(getServerHost(),getServerPort());
+        httpClient = FamilyMapModel.SINGLETON.httpClient;
         // FOR TESTING
 //        httpClient = new HttpClient("192.168.203.1","8080");
         currentUser = new User(getUsername(),getPassword());

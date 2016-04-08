@@ -1,5 +1,7 @@
 package com.skyler.android.familymap.model;
 
+import com.skyler.android.familymap.network.HttpClient;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -10,7 +12,9 @@ import java.util.Set;
 public class FamilyMapModel {
     public static final FamilyMapModel SINGLETON = new FamilyMapModel();
     public User currentUser;
+    public HttpClient httpClient;
     private ArrayList<String> personIdList = new ArrayList<>();
+    public Settings mSettings = new Settings();
 
     private FamilyMapModel() {
 
@@ -41,7 +45,11 @@ public class FamilyMapModel {
             Person person = currentUser.relatedPeople.get(personIdList.get(i));
             if(person.getFatherId() != null) {
                 person.setFather(currentUser.relatedPeople.get(person.getFatherId()));
+            }
+            if(person.getMotherId() != null) {
                 person.setMother(currentUser.relatedPeople.get(person.getMotherId()));
+            }
+            if(person.getSpouseId() != null) {
                 person.setSpouse(currentUser.relatedPeople.get(person.getSpouseId()));
             }
         }

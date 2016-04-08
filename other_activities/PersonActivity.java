@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,9 +35,6 @@ public class PersonActivity extends AppCompatActivity {
     private TextView mPersonLastNameText;
     private TextView mPersonGenderText;
 
-    private RecyclerView mLifeEventsRecyclerView;
-    private EventItemAdapter mEventItemAdapter;
-    private RecyclerView mFamilyInfoRecyclerView;
 
     private ExpandableListView mExpandableListView;
     final int EVENT_GROUP_INDEX = 0;
@@ -64,7 +60,6 @@ public class PersonActivity extends AppCompatActivity {
         mPersonGenderText.setText(mCurrentPerson.getGender().toString());
 
         List<Event> events = new ArrayList<>();
-        // Todo: the birth event is often repeated just before death
         for (Event event :
                 mCurrentPerson.relatedEvents) {
             events.add(event);
@@ -73,6 +68,15 @@ public class PersonActivity extends AppCompatActivity {
         ExpandableListAdapter listAdapter = new ExpandableListAdapter(events, family);
         mExpandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
         mExpandableListView.setAdapter(listAdapter);
+
+
+        mExpandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                mExpandableListView.setGroupIndicator(getDrawable(R.drawable.ic_expand_more));
+            }
+        });
+
 
         mExpandableListView.expandGroup(EVENT_GROUP_INDEX);
         mExpandableListView.expandGroup(FAMILY_GROUP_INDEX);
@@ -87,14 +91,12 @@ public class PersonActivity extends AppCompatActivity {
                         Event event = (Event) parent.getExpandableListAdapter().getChild(groupPosition, childPosition);
                         Intent intent = new Intent(getBaseContext(), MapActivity.class);
                         intent.putExtra("EVENT_ID", event.getEventId());
-                        Log.i("PersonActivity", "EventID=" + event.getEventId());
-                        Log.i("PersonActivity", "LatLng=" + event.getLatitude() + ", " + event.getLongitude());
                         startActivity(intent);
                         break;
 
                     case FAMILY_GROUP_INDEX:
                         intent = new Intent(getBaseContext(), PersonActivity.class);
-                        intent.putExtra("PERSON_ID", ((Person) parent.getExpandableListAdapter().getChild(groupPosition,childPosition)).getPersonId());
+                        intent.putExtra("PERSON_ID", ((Person) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).getPersonId());
                         startActivity(intent);
 
                 }
@@ -120,10 +122,10 @@ public class PersonActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_person, menu);
         ActionBar toolbar = getSupportActionBar();
-        if(toolbar != null) {
+        if (toolbar != null) {
             toolbar.setTitle("Family Map: Person Info");
         }
-        Drawable goToTopIcon = new IconDrawable(this, Iconify.IconValue.fa_angle_double_up).colorRes(R.color.white).sizeDp(20);
+        Drawable goToTopIcon = new IconDrawable(this, Iconify.IconValue.fa_angle_double_up).colorRes(R.color.white).sizeDp(30);
         menu.getItem(0).setIcon(goToTopIcon);
 
         return true;
@@ -154,56 +156,6 @@ public class PersonActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class EventItemHolder extends RecyclerView.ViewHolder {
-        private Event mEvent;
-
-        private ImageView mMarkerIcon;
-        private TextView mEventInfoText;
-        private TextView mEventNameText;
-
-        public EventItemHolder(View itemView) {
-            super(itemView);
-
-            mMarkerIcon = (ImageView) itemView.findViewById(R.id.event_item_marker_icon);
-            mEventInfoText = (TextView) itemView.findViewById(R.id.eventItemInfoText);
-            mEventNameText = (TextView) itemView.findViewById(R.id.eventItemNameText);
-
-        }
-
-        public void bindEvent(Event event) {
-            mEvent = event;
-            mEventInfoText.setText(event.getInfoText());
-            mEventNameText.setText(event.getName());
-            Drawable markerIcon = new IconDrawable(PersonActivity.this, Iconify.IconValue.fa_map_marker).colorRes((int) event.getColor()).sizeDp(40);
-            mMarkerIcon.setImageDrawable(markerIcon);
-        }
-    }
-
-    private class EventItemAdapter extends RecyclerView.Adapter<EventItemHolder> {
-        private List<Event> mEvents;
-
-        public EventItemAdapter(List<Event> events) {
-            mEvents = events;
-        }
-
-        @Override
-        public EventItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(PersonActivity.this);
-            View view = inflater.inflate(R.layout.list_item_event, parent, false);
-            return new EventItemHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(EventItemHolder holder, int position) {
-            Event event = mEvents.get(position);
-            holder.bindEvent(event);
-        }
-
-        @Override
-        public int getItemCount() {
-                return mEvents.size();
-        }
-    }
 
     private class ExpandableListAdapter extends BaseExpandableListAdapter {
         // TODO fill in data fields and implement functions here.
@@ -289,9 +241,9 @@ public class PersonActivity extends AppCompatActivity {
                 default:
                     groupTitle = "Invalid group position: " + groupPosition;
             }
-            if(convertView==null) {
+            if (convertView == null) {
                 LayoutInflater layoutInflater = (LayoutInflater.from(PersonActivity.this));
-                convertView = layoutInflater.inflate(R.layout.big_bold_text_view, null);
+                convertView = layoutInflater.inflate(R.layout.group_header, null);
             }
 
             TextView labelListHeader = (TextView) convertView.findViewById(R.id.bigBoldLine);
@@ -306,7 +258,7 @@ public class PersonActivity extends AppCompatActivity {
             LayoutInflater layoutInflater;
             switch (groupPosition) {
                 case EVENT_GROUP_INDEX:
-                    Event event = (Event) getChild(groupPosition,childPosition);
+                    Event event = (Event) getChild(groupPosition, childPosition);
                     layoutInflater = (LayoutInflater.from(PersonActivity.this));
                     convertView = layoutInflater.inflate(R.layout.list_item_event, null);
 
@@ -322,7 +274,7 @@ public class PersonActivity extends AppCompatActivity {
                     break;
 
                 case FAMILY_GROUP_INDEX:
-                    Person person = (Person) getChild(groupPosition,childPosition);
+                    Person person = (Person) getChild(groupPosition, childPosition);
 
                     layoutInflater = (LayoutInflater.from(PersonActivity.this));
                     convertView = layoutInflater.inflate(R.layout.list_item_person, null);
@@ -337,10 +289,9 @@ public class PersonActivity extends AppCompatActivity {
 
                     TextView personRelationshipText = (TextView) convertView.findViewById(R.id.person_item_relationship_text);
                     Person.Relationship relationship = person.getRelationshipTo(mCurrentPerson);
-                    if(relationship != null) {
+                    if (relationship != null) {
                         personRelationshipText.setText(relationship.toString());
-                    }
-                    else {
+                    } else {
                         personRelationshipText.setText("Relationship was null...");
                     }
                     break;

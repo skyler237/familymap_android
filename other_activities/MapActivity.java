@@ -54,6 +54,8 @@ public class MapActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // todo: Fix weird bug of crashing on some MapActivity to PersonActivity switches.
+
+        // todo: Add map line functionality
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_map);
 

@@ -22,7 +22,7 @@ import com.skyler.android.familymap.model.Event;
 import com.skyler.android.familymap.model.FamilyMapModel;
 
 public class MainActivity extends FragmentActivity
-        implements LoginFragment.OnLoginButtonPressedListener, OnMapReadyCallback {
+        implements LoginFragment.OnLoginButtonPressedListener{
 
     private LoginFragment loginFragment;
     private MapFragment mapFragment;
@@ -48,15 +48,6 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onLoginSuccessful() {
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment map = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        if (map == null) {
-            map = SupportMapFragment.newInstance();
-            map.getMapAsync(this);
-        }
-
-
         FragmentManager fm = this.getSupportFragmentManager();
         mapFragment = (MapFragment) fm.findFragmentById(R.id.mapFragmentLayout);
         if (mapFragment == null) {
@@ -68,36 +59,7 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
 
-        LatLng userBirth = null;
-        for (Event event :
-                FamilyMapModel.SINGLETON.getUserEvents()) {
-
-            // Add a marker for each event
-            LatLng eventLocation = new LatLng(event.getLatitude(), event.getLongitude());
-            mMap.addMarker(new MarkerOptions()
-                    .position(eventLocation)
-                    .title(event.getCity() + ", " + event.getCountry())
-                    .icon(BitmapDescriptorFactory.defaultMarker(event.getColor())));
-
-            if (event.getPersonId().equals(FamilyMapModel.SINGLETON.currentUser.getPersonId()) &&
-                    event.getDescription().equals("birth")) {
-                userBirth = eventLocation;
-            }
-        }
-        if (userBirth != null) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(userBirth));
-        }
-
-
-
-        mEventPreviewGenderIcon = (ImageView) findViewById(R.id.eventPreviewGenderIcon);
-        Drawable androidIcon = new IconDrawable(getBaseContext(), Iconify.IconValue.fa_android);
-//        mEventPreviewGenderIcon.setImageDrawable(androidIcon); //Set the android icon before any event is selected
-    }
 
     @Override
     public void onStart() {
