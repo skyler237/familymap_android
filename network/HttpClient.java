@@ -284,6 +284,9 @@ public class HttpClient {
                         user.addRelatedEvent(event);
                     }
 
+                    // Set up the filters with all the existing event types
+                    FamilyMapModel.SINGLETON.setFilters(Event.eventTypes);
+
                     return true;
 
                 }

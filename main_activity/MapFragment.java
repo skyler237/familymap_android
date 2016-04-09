@@ -30,12 +30,16 @@ import com.skyler.android.familymap.R;
 
 import com.skyler.android.familymap.model.Event;
 import com.skyler.android.familymap.model.FamilyMapModel;
+import com.skyler.android.familymap.model.Filters;
 import com.skyler.android.familymap.model.Person;
+import com.skyler.android.familymap.other_activities.FilterActivity;
 import com.skyler.android.familymap.other_activities.PersonActivity;
 import com.skyler.android.familymap.other_activities.SettingsActivity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -50,8 +54,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private static final float RELATIONSHIP_LINE_MAX_WIDTH = 15.0f;
     GoogleMap mMap;
     MapView mMapView;
+    Set<Marker> mEventMarkers = new HashSet<>();
 
-    private OnFragmentInteractionListener mListener;
     private TextView mEventPreviewTextView;
     private ImageView mEventPreviewGenderIcon;
     private LinearLayout mEventPreviewLayout;
@@ -128,7 +132,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                     .title(event.toString())
                     .icon(BitmapDescriptorFactory.defaultMarker(event.getColor()))
                     .snippet(event.getEventId()); // Store event ID in snippet
-            mMap.addMarker(markerOptions);
+            Marker marker = mMap.addMarker(markerOptions);
+            mEventMarkers.add(marker);
 
             if (event.getPersonId().equals(FamilyMapModel.SINGLETON.currentUser.getPersonId()) &&
                     event.getDescription().equals("birth")) {
@@ -154,7 +159,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onClick(View v) {
                 // Go to Person Activity
-                if(personInfoDisplaying != null) {
+                if (personInfoDisplaying != null) {
                     Intent intent = new Intent(getActivity(), PersonActivity.class);
                     intent.putExtra("PERSON_ID", personInfoDisplaying.getPersonId());
                     startActivity(intent);
@@ -185,6 +190,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onClick(View v) {
                 // Go to Filter Activity
+                Intent intent = new Intent(getContext(), FilterActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -201,6 +208,65 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         });
 
         return v;
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        updateRelationshipLines();
+        updateMapType();
+        updateFilteredEvents();
+    }
+
+    private void resetEventPreview() {
+        mEventPreviewGenderIcon.setImageDrawable(ANDROID_ICON); //Set the android icon before any event is selected
+        mEventPreviewTextView.setText("Click on a marker\nto see event details.");
+        mEventPreviewLayout.setClickable(false);
+    }
+
+    private void updateFilteredEvents() {
+        Filters filters = FamilyMapModel.SINGLETON.mFilters;
+        Set<String> fathersSide = FamilyMapModel.SINGLETON.currentUser.getFathersSideIDs();
+        Set<String> mothersSide = FamilyMapModel.SINGLETON.currentUser.getMothersSideIDs();
+        for(Marker marker : mEventMarkers) {
+            Event event = FamilyMapModel.SINGLETON.getEvent(marker.getSnippet());
+
+
+            Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
+
+            // Turn marker on by default
+            marker.setVisible(true);
+
+            // Turn off if the appropriate filter is turned off
+            // Check event type filters
+            if(!filters.isEventFilterOn(event.getDescription())) {
+                marker.setVisible(false);
+            }
+
+            // Check gender filters
+            String personGender = person.getGender().toString().toLowerCase();
+            if(!filters.isEventFilterOn(personGender)) {
+                marker.setVisible(false);
+            }
+
+            // Check father's side filter
+            if(fathersSide.contains(person.getPersonId()) && !filters.isEventFilterOn("Father's Side")) {
+                marker.setVisible(false);
+            }
+
+            // Check mother's side filter
+            if(mothersSide.contains(person.getPersonId()) && !filters.isEventFilterOn("Mother's Side")) {
+                marker.setVisible(false);
+            }
+
+            // If we turned off the event being displayed, reset the preview
+            if(event.equals(eventBeingDisplayed) && !marker.isVisible()) {
+                resetEventPreview();
+            }
+
+        }
     }
 
     /**
@@ -313,13 +379,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         mRelationshipLines.clear();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        updateRelationshipLines();
-        updateMapType();
-    }
 
     private void updateMapType() {
         switch (FamilyMapModel.SINGLETON.mSettings.getMapType()) {

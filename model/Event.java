@@ -147,7 +147,10 @@ public class Event implements Comparable {
 
     @Override
     public boolean equals(Object o) {
-        if(o.getClass() == this.getClass()) {
+        if(o == null) {
+            return false;
+        }
+        else if(o.getClass() == this.getClass()) {
             return this.getEventId().equals(((Event) o).eventId);
         }
         else {

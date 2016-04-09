@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,13 +48,48 @@ public class Person {
 
     }
 
-    public void setFather(Person father) {
-        this.father = father;
-        father.addChild(this);
+    /**
+     * Returns a set of all the person IDs for the people in the current users father's side
+     * @return - a set of Person IDs (father's side)
+     */
+    public Set<String> getFathersSideIDs() {
+        Set<String> fathersSideIds = new HashSet<>();
+        if(father != null) {
+            fathersSideIds.add(fatherId);
+            fathersSideIds.addAll(father.getAncestorsIDs());
+        }
+        return fathersSideIds;
     }
 
+    /**
+     * Returns a set of all the person IDs for the people in the current users mother's side
+     * @return - a set of Person IDs (mother's side)
+     */
+    public Set<String> getMothersSideIDs() {
+        Set<String> mothersSideIds = new HashSet<>();
+        if(mother != null) {
+            mothersSideIds.add(motherId);
+            mothersSideIds.addAll(mother.getAncestorsIDs());
+        }
+        return mothersSideIds;
+    }
 
-
+    /**
+     * Recursive function to gather all the person IDs of a person's ancestors
+     * @return - a set of all ancestor Person IDs
+     */
+    private Set<String> getAncestorsIDs() {
+        Set<String> ancestorIds = new HashSet<>();
+        if(father != null) {
+            ancestorIds.add(fatherId);
+            ancestorIds.addAll(father.getAncestorsIDs());
+        }
+        if(mother != null) {
+            ancestorIds.add(motherId);
+            ancestorIds.addAll(mother.getAncestorsIDs());
+        }
+        return ancestorIds;
+    }
 
 
     public enum Relationship {FATHER, MOTHER, SPOUSE, CHILD;
@@ -117,7 +153,6 @@ public class Person {
     }
 
     public Relationship getRelationshipTo(Person otherPerson) {
-        // todo: sometimes children return a null relationship
         // Check if the "otherPerson" is related to this person
         if(this.fatherId != null && this.motherId != null ) {
             if ((this.fatherId.equals(otherPerson.personId)) ||
@@ -154,10 +189,10 @@ public class Person {
         }
         switch (relationship) {
             case FATHER: // this person is other person's father -- add that person to the children
-                children.add(person);
+                addChild(person);
                 return;
             case MOTHER: // this person is other person's mother -- add that person to the children
-                children.add(person);
+                addChild(person);
             case SPOUSE:
                 spouse = person;
                 break;
@@ -190,13 +225,22 @@ public class Person {
 
 
     private void addChild(Person person) {
-        children.add(person);
+        if(!children.contains(person)) {
+            children.add(person);
+        }
     }
 
     public void setMother(Person mother) {
         this.mother = mother;
         mother.addChild(this);
     }
+
+
+    public void setFather(Person father) {
+        this.father = father;
+        father.addChild(this);
+    }
+
 
     public void setSpouse(Person spouse) {
         this.spouse = spouse;
@@ -314,5 +358,10 @@ public class Person {
             }
         }
         return nextEvent;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this.getClass().equals(o.getClass()) && ((Person) o).getPersonId().equals(this.getPersonId());
     }
 }

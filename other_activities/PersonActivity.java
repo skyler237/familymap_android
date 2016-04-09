@@ -87,7 +87,6 @@ public class PersonActivity extends AppCompatActivity {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 switch (groupPosition) {
                     case EVENT_GROUP_INDEX:
-                        // TODO: transfer control to Map Activity and display event
                         Event event = (Event) parent.getExpandableListAdapter().getChild(groupPosition, childPosition);
                         Intent intent = new Intent(getBaseContext(), MapActivity.class);
                         intent.putExtra("EVENT_ID", event.getEventId());

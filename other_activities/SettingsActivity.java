@@ -184,13 +184,13 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_person, menu);
-        ActionBar toolbar = getSupportActionBar();
-        if (toolbar != null) {
-            toolbar.setTitle("Family Map: Settings");
-        }
-        Drawable goToTopIcon = new IconDrawable(this, Iconify.IconValue.fa_angle_double_up).colorRes(R.color.white).sizeDp(30);
-        menu.getItem(0).setIcon(goToTopIcon);
+//        getMenuInflater().inflate(R.menu.menu_person, menu);
+//        ActionBar toolbar = getSupportActionBar();
+//        if (toolbar != null) {
+//            toolbar.setTitle("Family Map: Settings");
+//        }
+//        Drawable goToTopIcon = new IconDrawable(this, Iconify.IconValue.fa_angle_double_up).colorRes(R.color.white).sizeDp(30);
+//        menu.getItem(0).setIcon(goToTopIcon);
 
         return true;
     }
@@ -205,11 +205,11 @@ public class SettingsActivity extends AppCompatActivity {
                 finish();
                 return true;
 
-            case R.id.action_go_to_top:
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                break;
+//            case R.id.action_go_to_top:
+//                Intent intent = new Intent(this, MainActivity.class);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                startActivity(intent);
+//                break;
 
 
         }
