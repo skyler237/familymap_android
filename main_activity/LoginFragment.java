@@ -15,16 +15,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.skyler.android.familymap.R;
+import com.skyler.android.familymap.model.FamilyMapModel;
+import com.skyler.android.familymap.model.User;
+import com.skyler.android.familymap.network.HttpClient;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import com.skyler.android.familymap.model.FamilyMapModel;
-import com.skyler.android.familymap.model.User;
-import com.skyler.android.familymap.network.HttpClient;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,37 +36,25 @@ import com.skyler.android.familymap.network.HttpClient;
 public class LoginFragment extends Fragment {
     static final String DEFAULT_USERNAME = "skyler237";
     static final String DEFAULT_PASSWORD = "pw";
-    static final String DEFAULT_HOST = "192.168.1.3";
-//    static final String DEFAULT_HOST = "192.168.2.219";
+    static final String DEFAULT_HOST = "192.168.1.14";
+    //    static final String DEFAULT_HOST = "192.168.2.219";
 //    static final String DEFAULT_HOST = "10.24.199.17";
     static final String DEFAULT_PORT = "8080";
-
-    private OnLoginButtonPressedListener mListener;
-
-    private TextView usernameTextView;
+    public static HttpClient httpClient;
     private static EditText usernameEditText;
-    private TextView passwordTextView;
     private static EditText passwordEditText;
+    public User currentUser;
+    private OnLoginButtonPressedListener mListener;
+    private TextView usernameTextView;
+    private TextView passwordTextView;
     private TextView serverHostTextView;
     private EditText serverHostEditText;
     private TextView serverPortTextView;
     private EditText serverPortEditText;
     private Button mSignInButton;
-
-    public static HttpClient httpClient;
-    public User currentUser;
     private String authorizationToken;
     private String personId;
     private String loginResponseBody;
-
-    public interface OnLoginButtonPressedListener {
-        void onLoginSuccessful();
-    }
-
-    public void setAuthorizationToken(String authorizationToken) {
-        this.authorizationToken = authorizationToken;
-    }
-    //    private OnFragmentInteractionListener mListener;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -85,14 +72,14 @@ public class LoginFragment extends Fragment {
 
         return fragment;
     }
+    //    private OnFragmentInteractionListener mListener;
 
     public static String getUsername() {
         String typedUsername = usernameEditText.getText().toString();
 
-        if(typedUsername.equals("")) {
+        if (typedUsername.equals("")) {
             return DEFAULT_USERNAME;
-        }
-        else {
+        } else {
             return typedUsername;
         }
     }
@@ -100,21 +87,23 @@ public class LoginFragment extends Fragment {
     public static String getPassword() {
         String typedPassword = passwordEditText.getText().toString();
 
-        if(typedPassword.equals("")) {
+        if (typedPassword.equals("")) {
             return DEFAULT_PASSWORD;
-        }
-        else {
+        } else {
             return typedPassword;
         }
+    }
+
+    public void setAuthorizationToken(String authorizationToken) {
+        this.authorizationToken = authorizationToken;
     }
 
     private String getServerHost() {
         String typedHost = serverHostEditText.getText().toString();
 
-        if(typedHost.equals("")) {
+        if (typedHost.equals("")) {
             return DEFAULT_HOST;
-        }
-        else {
+        } else {
             return typedHost;
         }
 
@@ -123,10 +112,9 @@ public class LoginFragment extends Fragment {
     private String getServerPort() {
         String typedPort = serverPortEditText.getText().toString();
 
-        if(typedPort.equals("")) {
+        if (typedPort.equals("")) {
             return DEFAULT_PORT;
-        }
-        else {
+        } else {
             return typedPort;
         }
     }
@@ -174,11 +162,11 @@ public class LoginFragment extends Fragment {
         LoginTask loginTask = new LoginTask();
 
 
-        FamilyMapModel.SINGLETON.httpClient = new HttpClient(getServerHost(),getServerPort());
+        FamilyMapModel.SINGLETON.httpClient = new HttpClient(getServerHost(), getServerPort());
         httpClient = FamilyMapModel.SINGLETON.httpClient;
         // FOR TESTING
 //        httpClient = new HttpClient("192.168.203.1","8080");
-        currentUser = new User(getUsername(),getPassword());
+        currentUser = new User(getUsername(), getPassword());
         FamilyMapModel.SINGLETON.setCurrentUser(currentUser);
 
         //Execute task
@@ -191,7 +179,6 @@ public class LoginFragment extends Fragment {
 
 
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -212,6 +199,10 @@ public class LoginFragment extends Fragment {
 
     public void showLoginResult(Boolean result) {
         Toast.makeText(getContext(), result.toString(), Toast.LENGTH_SHORT).show();
+    }
+
+    public interface OnLoginButtonPressedListener {
+        void onLoginSuccessful();
     }
 
     /**
@@ -245,10 +236,9 @@ public class LoginFragment extends Fragment {
         }
 
         protected void onPostExecute(Boolean loginSuccess) {
-            if(loginSuccess) {
+            if (loginSuccess) {
                 Toast.makeText(getContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
-            }
-            else {
+            } else {
                 Toast.makeText(getContext(), "Login Failed", Toast.LENGTH_LONG).show();
             }
         }
@@ -267,19 +257,16 @@ public class LoginFragment extends Fragment {
                 retrieveAllPeopleSuccessful = httpClient.retrieveAllPeopleData(currentUser);
                 retrieveAllEventsSuccessful = httpClient.retrieveAllEventData(currentUser);
 
-                if(!retrievePersonSuccessful) {
-                    Log.e("RetrieveFamilyDataTask","retrieve person data unsuccessful");
+                if (!retrievePersonSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve person data unsuccessful");
                     return false;
-                }
-                else if(!retrieveAllPeopleSuccessful) {
-                    Log.e("RetrieveFamilyDataTask","retrieve all people data unsuccessful");
+                } else if (!retrieveAllPeopleSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve all people data unsuccessful");
                     return false;
-                }
-                else if(!retrieveAllEventsSuccessful) {
-                    Log.e("RetrieveFamilyDataTask","retrieve all events data unsuccessful");
+                } else if (!retrieveAllEventsSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve all events data unsuccessful");
                     return false;
-                }
-                else {
+                } else {
                     // All went well!
                     return true;
                 }
@@ -297,13 +284,12 @@ public class LoginFragment extends Fragment {
         }
 
         protected void onPostExecute(Boolean success) {
-            if(success) {
+            if (success) {
                 Toast.makeText(getContext(), "Welcome, " + currentUser.getFirstName() + " " + currentUser.getLastName() + "!", Toast.LENGTH_LONG).show();
                 FamilyMapModel.SINGLETON.setCurrentUser(currentUser); // Save the current user in the com.skyler.android.familymap.model before we exit
                 mListener.onLoginSuccessful(); //Tell the main activity that we have logged in
-            }
-            else {
-                if(currentUser.isLoggedIn) { // Only display this if the login was successful, but the data retrieval was not
+            } else {
+                if (currentUser.isLoggedIn) { // Only display this if the login was successful, but the data retrieval was not
                     Toast.makeText(getContext(), "Data retrieval failed", Toast.LENGTH_LONG).show();
                 }
             }

@@ -3,14 +3,14 @@ package com.skyler.android.familymap.model;
 /**
  * Created by Skyler on 3/15/2016.
  */
-public class User extends Person{
+public class User extends Person {
+    public boolean isLoggedIn = false;
     private String username;
     private String password;
     private String personId;
     private String authorizationToken;
     private String firstName;
     private String lastName;
-    public boolean isLoggedIn = false;
 
     public User(String username, String password) {
         super();

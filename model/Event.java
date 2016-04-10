@@ -6,7 +6,6 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -42,7 +41,7 @@ public class Event implements Comparable {
 
         // Add this event to the appropriate person
         Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(personId);
-        if(person != null) {
+        if (person != null) {
             person.addRelatedEvent(this);
             FamilyMapModel.SINGLETON.currentUser.addRelatedEvent(this); // Just in case -- make sure it is in the model
         }
@@ -50,7 +49,7 @@ public class Event implements Comparable {
 
     @Override
     public String toString() {
-        String str = getName() + "\n";
+        String str = getPersonName() + "\n";
         str += getInfoText();
 
         return str;
@@ -78,7 +77,7 @@ public class Event implements Comparable {
         setName(personId);
     }
 
-    public String getName() {
+    public String getPersonName() {
         return name;
     }
 
@@ -147,13 +146,11 @@ public class Event implements Comparable {
 
     @Override
     public boolean equals(Object o) {
-        if(o == null) {
+        if (o == null) {
             return false;
-        }
-        else if(o.getClass() == this.getClass()) {
+        } else if (o.getClass() == this.getClass()) {
             return this.getEventId().equals(((Event) o).eventId);
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -163,65 +160,56 @@ public class Event implements Comparable {
     public int compareTo(Object another) {
         final int THIS_COMES_FIRST = -1;
         final int OTHER_COMES_FIRST = 1;
-        if(another.getClass() == this.getClass()) {
+        if (another.getClass() == this.getClass()) {
             // Births are always first
-            if(this.description.toLowerCase().equals("birth") &&
+            if (this.description.toLowerCase().equals("birth") &&
                     !((Event) another).description.toLowerCase().equals("birth")) {
                 return THIS_COMES_FIRST;
-            }
-            else if (!this.description.toLowerCase().equals("birth") &&
+            } else if (!this.description.toLowerCase().equals("birth") &&
                     ((Event) another).description.toLowerCase().equals("birth")) {
                 return OTHER_COMES_FIRST;
             }
 
             // Deaths are always last
-            if(this.description.toLowerCase().equals("death") &&
+            if (this.description.toLowerCase().equals("death") &&
                     !((Event) another).description.toLowerCase().equals("death")) {
                 return 1;
-            }
-            else if (!this.description.toLowerCase().equals("death") &&
+            } else if (!this.description.toLowerCase().equals("death") &&
                     ((Event) another).description.toLowerCase().equals("death")) {
                 return THIS_COMES_FIRST;
             }
 
             // Sort by date, then by descriptions alphabetically
             String year = this.getYear();
-            String otherYear = ((Event)another).getYear();
-            if(year != null) {
-                if(otherYear != null) { // Both have years - return the comparison
-                    if(year.compareTo(otherYear) == 0) {  // If the years are equal, check the descriptions
-                        int compareDescriptions = this.getDescription().compareTo(((Event)another).getDescription());
-                        if(compareDescriptions == 0) {
+            String otherYear = ((Event) another).getYear();
+            if (year != null) {
+                if (otherYear != null) { // Both have years - return the comparison
+                    if (year.compareTo(otherYear) == 0) {  // If the years are equal, check the descriptions
+                        int compareDescriptions = this.getDescription().compareTo(((Event) another).getDescription());
+                        if (compareDescriptions == 0) {
                             return eventId.compareTo(((Event) another).eventId); // If descriptions are equal, compare IDs
-                        }
-                        else {
+                        } else {
                             return compareDescriptions;
                         }
-                    }
-                    else {
+                    } else {
                         return year.compareTo(otherYear);
                     }
-                }
-                else {
+                } else {
                     return THIS_COMES_FIRST;
                 }
-            }
-            else { // This doesn't have a year...
-                if(otherYear != null) {
+            } else { // This doesn't have a year...
+                if (otherYear != null) {
                     return OTHER_COMES_FIRST;
-                }
-                else { // Neither have years, compare their descriptions
-                    int compareDescriptions = this.getDescription().compareTo(((Event)another).getDescription());
-                    if(compareDescriptions == 0) {
+                } else { // Neither have years, compare their descriptions
+                    int compareDescriptions = this.getDescription().compareTo(((Event) another).getDescription());
+                    if (compareDescriptions == 0) {
                         return eventId.compareTo(((Event) another).eventId); // If descriptions are equal, compare IDs
-                    }
-                    else {
+                    } else {
                         return compareDescriptions;
                     }
                 }
             }
-        }
-        else {
+        } else {
             return -1;
         }
     }
@@ -271,5 +259,15 @@ public class Event implements Comparable {
 
     public LatLng getLatLng() {
         return new LatLng(getLatitude(), getLongitude());
+    }
+
+    /**
+     * Returns a string of all the information about an event that we want to be searchable
+     * **Note: search is case insensitive
+     *
+     * @return - string of all searchable data
+     */
+    public String getSearchableText() {
+        return (getInfoText() + " " + getPersonName()).toLowerCase();
     }
 }

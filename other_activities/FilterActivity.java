@@ -30,13 +30,13 @@ public class FilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filter);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         mFilterRecyclerView = (RecyclerView) findViewById(R.id.filter_recycler_view);
         mLayoutManager = new LinearLayoutManager(this);
-        ((LinearLayoutManager)mLayoutManager).setOrientation(LinearLayoutManager.VERTICAL);
+        ((LinearLayoutManager) mLayoutManager).setOrientation(LinearLayoutManager.VERTICAL);
         mFilterRecyclerView.setLayoutManager(mLayoutManager);
 
         List<String> eventTypes = FamilyMapModel.SINGLETON.getEventFilterTypes();
@@ -60,9 +60,9 @@ public class FilterActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if(id == android.R.id.home) {
-                finish();
-                return true;
+        if (id == android.R.id.home) {
+            finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -92,7 +92,7 @@ public class FilterActivity extends AppCompatActivity {
 
         public void bindFilter(String eventType) {
             mEventType = eventType;
-            mFilterLabel.setText(eventType.substring(0,1).toUpperCase() + eventType.substring(1) + " Event"); // Capitalize the event name
+            mFilterLabel.setText(eventType.substring(0, 1).toUpperCase() + eventType.substring(1) + " Event"); // Capitalize the event name
             mFilterDescription.setText("FILTER BY " + eventType.toUpperCase() + " EVENTS");
             mFilterSwitch.setChecked(FamilyMapModel.SINGLETON.mFilters.isEventFilterOn(mEventType));
         }

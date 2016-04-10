@@ -1,12 +1,8 @@
 package com.skyler.android.familymap.other_activities;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,11 +14,8 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joanzapata.android.iconify.IconDrawable;
-import com.joanzapata.android.iconify.Iconify;
 import com.skyler.android.familymap.R;
 import com.skyler.android.familymap.main_activity.MainActivity;
 import com.skyler.android.familymap.model.FamilyMapModel;
@@ -173,7 +166,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 FamilyMapModel.SINGLETON.mSettings.resetSettings();
                 Intent intent = getBaseContext().getPackageManager()
-                        .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+                        .getLaunchIntentForPackage(getBaseContext().getPackageName());
 //                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
@@ -228,6 +221,7 @@ public class SettingsActivity extends AppCompatActivity {
             boolean retrieveAllPeopleSuccessful;
             boolean retrieveAllEventsSuccessful;
             try {
+                FamilyMapModel.SINGLETON.clearData();
                 retrievePersonSuccessful = httpClient.retrievePersonData(currentUser);
                 retrieveAllPeopleSuccessful = httpClient.retrieveAllPeopleData(currentUser);
                 retrieveAllEventsSuccessful = httpClient.retrieveAllEventData(currentUser);
@@ -261,6 +255,11 @@ public class SettingsActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean success) {
             if (success) {
                 Toast.makeText(getBaseContext(), "Data synchronization successful", Toast.LENGTH_LONG).show();
+
+                // Go to top
+                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             } else {
                 Toast.makeText(getBaseContext(), "Data synchronization failed", Toast.LENGTH_LONG).show();
             }

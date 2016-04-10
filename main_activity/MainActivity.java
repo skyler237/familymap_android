@@ -1,28 +1,16 @@
 package com.skyler.android.familymap.main_activity;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.joanzapata.android.iconify.IconDrawable;
-import com.joanzapata.android.iconify.Iconify;
 import com.skyler.android.familymap.R;
 
-import com.skyler.android.familymap.model.Event;
-import com.skyler.android.familymap.model.FamilyMapModel;
-
 public class MainActivity extends FragmentActivity
-        implements LoginFragment.OnLoginButtonPressedListener{
+        implements LoginFragment.OnLoginButtonPressedListener {
 
     private LoginFragment loginFragment;
     private MapFragment mapFragment;
@@ -44,7 +32,7 @@ public class MainActivity extends FragmentActivity
                     .commit();
         }
 
-   }
+    }
 
     @Override
     public void onLoginSuccessful() {
@@ -59,7 +47,11 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+    }
 
     @Override
     public void onStart() {

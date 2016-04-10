@@ -6,13 +6,11 @@ import android.graphics.drawable.Drawable;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.skyler.android.familymap.R;
-import com.skyler.android.familymap.other_activities.PersonActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +28,7 @@ import static com.skyler.android.familymap.model.Person.Relationship.SPOUSE;
 public class Person {
 
     public Set<Event> relatedEvents = new TreeSet<>();
-    public HashMap<String,Person> relatedPeople = new HashMap<>();
+    public HashMap<String, Person> relatedPeople = new HashMap<>();
     public Person father;
     public Person mother;
     public Person spouse;
@@ -48,13 +46,30 @@ public class Person {
 
     }
 
+    public Person(JSONObject jsonData) throws JSONException {
+        setPersonId(jsonData.getString("personID"));
+        setFirstName(jsonData.getString("firstName"));
+        setLastName(jsonData.getString("lastName"));
+        setGender(jsonData.getString("gender"));
+        if (jsonData.has("father")) {
+            setFatherId(jsonData.getString("father"));
+        }
+        if (jsonData.has("mother")) {
+            setMotherId(jsonData.getString("mother"));
+        }
+        if (jsonData.has("spouse")) {
+            setSpouseId(jsonData.getString("spouse"));
+        }
+    }
+
     /**
      * Returns a set of all the person IDs for the people in the current users father's side
+     *
      * @return - a set of Person IDs (father's side)
      */
     public Set<String> getFathersSideIDs() {
         Set<String> fathersSideIds = new HashSet<>();
-        if(father != null) {
+        if (father != null) {
             fathersSideIds.add(fatherId);
             fathersSideIds.addAll(father.getAncestorsIDs());
         }
@@ -63,11 +78,12 @@ public class Person {
 
     /**
      * Returns a set of all the person IDs for the people in the current users mother's side
+     *
      * @return - a set of Person IDs (mother's side)
      */
     public Set<String> getMothersSideIDs() {
         Set<String> mothersSideIds = new HashSet<>();
-        if(mother != null) {
+        if (mother != null) {
             mothersSideIds.add(motherId);
             mothersSideIds.addAll(mother.getAncestorsIDs());
         }
@@ -76,103 +92,48 @@ public class Person {
 
     /**
      * Recursive function to gather all the person IDs of a person's ancestors
+     *
      * @return - a set of all ancestor Person IDs
      */
     private Set<String> getAncestorsIDs() {
         Set<String> ancestorIds = new HashSet<>();
-        if(father != null) {
+        if (father != null) {
             ancestorIds.add(fatherId);
             ancestorIds.addAll(father.getAncestorsIDs());
         }
-        if(mother != null) {
+        if (mother != null) {
             ancestorIds.add(motherId);
             ancestorIds.addAll(mother.getAncestorsIDs());
         }
         return ancestorIds;
     }
 
-
-    public enum Relationship {FATHER, MOTHER, SPOUSE, CHILD;
-
-        @Override
-        public String toString() {
-            switch (this) {
-
-                case FATHER:
-                    return "Father";
-
-                case MOTHER:
-                    return "Mother";
-
-                case SPOUSE:
-                    return "Spouse";
-
-                case CHILD:
-                    return "Child";
-
-            }
-            return null;
-        }
-    }
-
-    public enum Gender {MALE, FEMALE;
-
-        @Override
-        public String toString() {
-            if(this.name().equals("MALE")) {
-                return "Male";
-            }
-            else{
-                return "Female";
-            }
-        }
-
-        public Drawable getDrawable(Context context) {
-            if(this.name().equals("MALE")) {
-                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_male).colorRes(R.color.male_icon).sizeDp(40);
-                return drawable;
-            }
-            else{
-                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_female).colorRes(R.color.female_icon).sizeDp(40);
-                return drawable;
-            }
-        }
-    }
-
-
-
-
-    public Person(JSONObject jsonData) throws JSONException {
-        setPersonId(jsonData.getString("personID"));
-        setFirstName(jsonData.getString("firstName"));
-        setLastName(jsonData.getString("lastName"));
-        setGender(jsonData.getString("gender"));
-        if(jsonData.has("father")) { setFatherId(jsonData.getString("father"));}
-        if(jsonData.has("mother")) { setMotherId(jsonData.getString("mother"));}
-        if(jsonData.has("spouse")) { setSpouseId(jsonData.getString("spouse"));}
+    @Override
+    public int hashCode() {
+        return personId.hashCode();
     }
 
     public Relationship getRelationshipTo(Person otherPerson) {
         // Check if the "otherPerson" is related to this person
-        if(this.fatherId != null && this.motherId != null ) {
+        if (this.fatherId != null && this.motherId != null) {
             if ((this.fatherId.equals(otherPerson.personId)) ||
                     (this.motherId.equals(otherPerson.personId))) {
                 // This person is the child of other person
                 return CHILD;
             }
         }
-        if (this.spouseId != null && otherPerson.spouseId != null ) {
+        if (this.spouseId != null && otherPerson.spouseId != null) {
             if ((this.spouseId.equals(otherPerson.personId)) ||
                     (this.personId.equals(otherPerson.spouseId))) {
                 return SPOUSE;
             }
         }
-        if(otherPerson.fatherId != null ) {
+        if (otherPerson.fatherId != null) {
             if (otherPerson.fatherId.equals(this.personId)) {
                 return FATHER;
             }
         }
-        if(otherPerson.motherId != null) {
+        if (otherPerson.motherId != null) {
             if (otherPerson.motherId.equals(this.personId)) {
                 return MOTHER;
             }
@@ -184,7 +145,7 @@ public class Person {
     public void addRelatedPerson(Person person) {
         relatedPeople.put(person.personId, person);
         Relationship relationship = getRelationshipTo(person);
-        if(relationship == null) {
+        if (relationship == null) {
             return;
         }
         switch (relationship) {
@@ -197,10 +158,9 @@ public class Person {
                 spouse = person;
                 break;
             case CHILD:
-                if(fatherId.equals(person.getPersonId())) {
+                if (fatherId.equals(person.getPersonId())) {
                     father = person;
-                }
-                else if (motherId.equals(person.getPersonId())) {
+                } else if (motherId.equals(person.getPersonId())) {
                     mother = person;
                 }
                 break;
@@ -209,13 +169,13 @@ public class Person {
 
     public List<Person> getFamily() {
         List<Person> family = new ArrayList<>();
-        if(spouseId != null) {
+        if (spouseId != null) {
             family.add(FamilyMapModel.SINGLETON.getPerson(spouseId));
         }
-        if(fatherId != null) {
+        if (fatherId != null) {
             family.add(father);
         }
-        if(mother != null) {
+        if (mother != null) {
             family.add(mother);
         }
         family.addAll(children);
@@ -223,9 +183,8 @@ public class Person {
         return family;
     }
 
-
     private void addChild(Person person) {
-        if(!children.contains(person)) {
+        if (!children.contains(person)) {
             children.add(person);
         }
     }
@@ -235,12 +194,10 @@ public class Person {
         mother.addChild(this);
     }
 
-
     public void setFather(Person father) {
         this.father = father;
         father.addChild(this);
     }
-
 
     public void setSpouse(Person spouse) {
         this.spouse = spouse;
@@ -250,7 +207,6 @@ public class Person {
         relatedEvents.add(event);
     }
 
-
     public String getPersonId() {
         return personId;
     }
@@ -258,7 +214,6 @@ public class Person {
     public void setPersonId(String personId) {
         this.personId = personId;
     }
-
 
     public String getFirstName() {
         return firstName;
@@ -281,10 +236,9 @@ public class Person {
     }
 
     public void setGender(String gender) {
-        if(gender.equals("m")) {
+        if (gender.equals("m")) {
             this.gender = Gender.MALE;
-        }
-        else{
+        } else {
             this.gender = Gender.FEMALE;
         }
     }
@@ -326,17 +280,18 @@ public class Person {
 
     /**
      * Returns the birth event of a Person. If there is no birth event recorded, it will just return the next earliest event recorded
+     *
      * @return - the birth event or next earliest event of this Person. returns null if no events are recorded.
      */
     public Event getEarliestEvent() {
         Event earliestEvent = null;
         for (Event event : relatedEvents) {
             // Initially set the first event encountered as the earliest event
-            if(earliestEvent == null) {
+            if (earliestEvent == null) {
                 earliestEvent = event;
             }
             // replace the earliest event if an earlier one is found
-            else if(event.getYear().compareTo(earliestEvent.getYear()) < 0) {
+            else if (event.getYear().compareTo(earliestEvent.getYear()) < 0) {
                 earliestEvent = event;
             }
         }
@@ -346,6 +301,7 @@ public class Person {
 
     /**
      * Returns the event that chronologically follows current event
+     *
      * @param currentEvent - the current event; we will return the event following this one
      * @return - returns the event following <code>currentEvent</code>
      */
@@ -353,8 +309,8 @@ public class Person {
         Event nextEvent = null;
         Object[] events = relatedEvents.toArray();
         for (int i = 0; i < events.length - 1; i++) { // Go through second to last, to look for current event
-            if(events[i] == currentEvent) {
-                nextEvent = (Event) events[i+1]; // If found, return the next event
+            if (events[i] == currentEvent) {
+                nextEvent = (Event) events[i + 1]; // If found, return the next event
             }
         }
         return nextEvent;
@@ -364,4 +320,63 @@ public class Person {
     public boolean equals(Object o) {
         return this.getClass().equals(o.getClass()) && ((Person) o).getPersonId().equals(this.getPersonId());
     }
+
+    /**
+     * Returns a string of all the information about a person that we want to be searchable
+     * **Note: search is case insensitive
+     *
+     * @return - string of all searchable data
+     */
+    public String getSearchableText() {
+        return (getFirstName() + " " + getLastName()).toLowerCase();
+    }
+
+    public enum Relationship {
+        FATHER, MOTHER, SPOUSE, CHILD;
+
+        @Override
+        public String toString() {
+            switch (this) {
+
+                case FATHER:
+                    return "Father";
+
+                case MOTHER:
+                    return "Mother";
+
+                case SPOUSE:
+                    return "Spouse";
+
+                case CHILD:
+                    return "Child";
+
+            }
+            return null;
+        }
+    }
+
+    public enum Gender {
+        MALE, FEMALE;
+
+        @Override
+        public String toString() {
+            if (this.name().equals("MALE")) {
+                return "Male";
+            } else {
+                return "Female";
+            }
+        }
+
+
+        public Drawable getDrawable(Context context) {
+            if (this.name().equals("MALE")) {
+                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_male).colorRes(R.color.male_icon).sizeDp(40);
+                return drawable;
+            } else {
+                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_female).colorRes(R.color.female_icon).sizeDp(40);
+                return drawable;
+            }
+        }
+    }
+
 }

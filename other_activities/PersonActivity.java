@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,16 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PersonActivity extends AppCompatActivity {
+    final int EVENT_GROUP_INDEX = 0;
+    final int FAMILY_GROUP_INDEX = 1;
     private TextView mPersonFirstNameText;
-
     private Person mCurrentPerson;
     private TextView mPersonLastNameText;
     private TextView mPersonGenderText;
-
-
     private ExpandableListView mExpandableListView;
-    final int EVENT_GROUP_INDEX = 0;
-    final int FAMILY_GROUP_INDEX = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -269,7 +265,7 @@ public class PersonActivity extends AppCompatActivity {
                     eventInfoText.setText(event.getInfoText());
 
                     TextView eventNameText = (TextView) convertView.findViewById(R.id.eventItemNameText);
-                    eventNameText.setText(event.getName());
+                    eventNameText.setText(event.getPersonName());
                     break;
 
                 case FAMILY_GROUP_INDEX:

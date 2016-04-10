@@ -3,10 +3,7 @@ package com.skyler.android.familymap.other_activities;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -170,17 +167,15 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-
     private void displayMarkerEventInfo(Marker marker) {
         mEventPreviewLayout.setClickable(true); // Make the preview clickable only if there is a person selected
         Event event = FamilyMapModel.SINGLETON.getEvent(marker.getSnippet());
         eventBeingDisplayed = event;
         mEventPreviewTextView.setText(marker.getTitle());
         personInfoDisplaying = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
-        if(personInfoDisplaying.getGender() == Person.Gender.MALE) {
+        if (personInfoDisplaying.getGender() == Person.Gender.MALE) {
             mEventPreviewGenderIcon.setImageDrawable(MALE_ICON);
-        }
-        else {
+        } else {
             mEventPreviewGenderIcon.setImageDrawable(FEMALE_ICON);
         }
 
@@ -192,10 +187,9 @@ public class MapActivity extends AppCompatActivity {
         Event event = FamilyMapModel.SINGLETON.getEvent(eventId);
         mEventPreviewTextView.setText(event.toString());
         personInfoDisplaying = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
-        if(personInfoDisplaying.getGender() == Person.Gender.MALE) {
+        if (personInfoDisplaying.getGender() == Person.Gender.MALE) {
             mEventPreviewGenderIcon.setImageDrawable(MALE_ICON);
-        }
-        else {
+        } else {
             mEventPreviewGenderIcon.setImageDrawable(FEMALE_ICON);
         }
 
@@ -211,7 +205,7 @@ public class MapActivity extends AppCompatActivity {
      */
     private void updateRelationshipLines() {
         // Draw family tree lines if there is an event to display
-        if(eventBeingDisplayed != null) {
+        if (eventBeingDisplayed != null) {
             clearRelationshipLines();
             if (FamilyMapModel.SINGLETON.mSettings.isFamilyTreeLinesOn()) {
                 int generation = 1;
@@ -233,14 +227,15 @@ public class MapActivity extends AppCompatActivity {
     /**
      * Recursive function to draw the map polylines for the current person's life story
      * Connects lines between all of the person's events in chronological order
+     *
      * @param person - the person whose life story will be displayed
      */
     private void drawLifeStoryLines(Person person) {
-        if(person == null) {
+        if (person == null) {
             return; // This may occur if no person has been selected yet
         }
         Event currentEvent = person.getEarliestEvent();
-        while(currentEvent != null) {
+        while (currentEvent != null) {
             Event nextEvent = person.getEventFollowing(currentEvent);
             if (nextEvent != null) {
                 Polyline line = mMap.addPolyline(new PolylineOptions()
@@ -255,13 +250,14 @@ public class MapActivity extends AppCompatActivity {
 
     /**
      * Draws a map polyline from the current event to the person's spouse's birth (or earliest event) if a spouse exists
+     *
      * @param event - the event from which to draw the line
      */
     private void drawSpouseLines(Event event) {
         Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
-        if(person.spouse != null ) {
+        if (person.spouse != null) {
             Event spouseBirth = person.spouse.getEarliestEvent();
-            if(spouseBirth != null) {
+            if (spouseBirth != null) {
                 Polyline line = mMap.addPolyline(new PolylineOptions()
                         .add(event.getLatLng(), spouseBirth.getLatLng())
                         .color(FamilyMapModel.SINGLETON.mSettings.getSpouseLinesColor())
@@ -274,14 +270,15 @@ public class MapActivity extends AppCompatActivity {
     /**
      * Recursive function to draw family lines. It will recurse up both parent trees until there is no parent found.
      * Draws the lines with the appropriate color and decreasing with for each generation.
-     * @param event - The event from which the line will be drawn
+     *
+     * @param event      - The event from which the line will be drawn
      * @param generation - The current generation from which the lines being drawn (root = 1st gen.)
      */
     private void drawFamilyTreeLines(Event event, int generation) {
         Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
-        if(person.father != null) {
+        if (person.father != null) {
             Event fathersBirth = person.father.getEarliestEvent();
-            if(fathersBirth != null) {
+            if (fathersBirth != null) {
                 Polyline line = mMap.addPolyline(new PolylineOptions()
                         .add(event.getLatLng(), fathersBirth.getLatLng())
                         .color(FamilyMapModel.SINGLETON.mSettings.getFamilyTreeLinesColor())
@@ -292,10 +289,10 @@ public class MapActivity extends AppCompatActivity {
 
             }
         }
-        if(person.mother != null) {
+        if (person.mother != null) {
             Event mothersBirth = person.mother.getEarliestEvent();
-            if(mothersBirth != null) {
-                Polyline line =  mMap.addPolyline(new PolylineOptions()
+            if (mothersBirth != null) {
+                Polyline line = mMap.addPolyline(new PolylineOptions()
                         .add(event.getLatLng(), mothersBirth.getLatLng())
                         .color(FamilyMapModel.SINGLETON.mSettings.getFamilyTreeLinesColor())
                         .width(RELATIONSHIP_LINE_MAX_WIDTH / generation)); // Make the color decrease with generation
@@ -309,7 +306,7 @@ public class MapActivity extends AppCompatActivity {
      * Clears all the relationship polylines on the screen so the appropriate ones can be redrawn
      */
     private void clearRelationshipLines() {
-        for(Polyline line : mRelationshipLines) {
+        for (Polyline line : mRelationshipLines) {
             line.remove();
         }
         mRelationshipLines.clear();

@@ -27,13 +27,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 import com.skyler.android.familymap.R;
-
 import com.skyler.android.familymap.model.Event;
 import com.skyler.android.familymap.model.FamilyMapModel;
 import com.skyler.android.familymap.model.Filters;
 import com.skyler.android.familymap.model.Person;
 import com.skyler.android.familymap.other_activities.FilterActivity;
 import com.skyler.android.familymap.other_activities.PersonActivity;
+import com.skyler.android.familymap.other_activities.SearchActivity;
 import com.skyler.android.familymap.other_activities.SettingsActivity;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ import java.util.Set;
  * Use the {@link MapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback{
+public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float RELATIONSHIP_LINE_MAX_WIDTH = 15.0f;
     GoogleMap mMap;
     MapView mMapView;
@@ -100,9 +100,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        SEARCH_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_search).colorRes(R.color.white).sizeDp(30);
-        FILTER_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_filter).colorRes(R.color.white).sizeDp(30);
-        GEAR_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_gear).colorRes(R.color.white).sizeDp(30);
+        SEARCH_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_search).colorRes(R.color.white).sizeDp(35);
+        FILTER_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_filter).colorRes(R.color.white).sizeDp(35);
+        GEAR_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_gear).colorRes(R.color.white).sizeDp(35);
         ANDROID_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_android).colorRes(R.color.androidGreen).sizeDp(50);
         MALE_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_male).colorRes(R.color.male_icon).sizeDp(50);
         FEMALE_ICON = new IconDrawable(getActivity(), Iconify.IconValue.fa_female).colorRes(R.color.female_icon).sizeDp(50);
@@ -181,6 +181,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             public void onClick(View v) {
                 // Go to Search Activity
                 // TODO: 3/25/2016 Transfer to search activity
+                Intent intent = new Intent(getContext(), SearchActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -215,12 +217,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     public void onResume() {
         super.onResume();
 
+        if (FamilyMapModel.SINGLETON.resetMapEventPreview) {
+            resetEventPreview();
+            FamilyMapModel.SINGLETON.resetMapEventPreview = false;
+        }
         updateRelationshipLines();
         updateMapType();
         updateFilteredEvents();
     }
 
     private void resetEventPreview() {
+        eventBeingDisplayed = null;
+        personInfoDisplaying = null;
         mEventPreviewGenderIcon.setImageDrawable(ANDROID_ICON); //Set the android icon before any event is selected
         mEventPreviewTextView.setText("Click on a marker\nto see event details.");
         mEventPreviewLayout.setClickable(false);
@@ -230,7 +238,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         Filters filters = FamilyMapModel.SINGLETON.mFilters;
         Set<String> fathersSide = FamilyMapModel.SINGLETON.currentUser.getFathersSideIDs();
         Set<String> mothersSide = FamilyMapModel.SINGLETON.currentUser.getMothersSideIDs();
-        for(Marker marker : mEventMarkers) {
+        for (Marker marker : mEventMarkers) {
             Event event = FamilyMapModel.SINGLETON.getEvent(marker.getSnippet());
 
 
@@ -241,28 +249,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
             // Turn off if the appropriate filter is turned off
             // Check event type filters
-            if(!filters.isEventFilterOn(event.getDescription())) {
+            if (!filters.isEventFilterOn(event.getDescription())) {
                 marker.setVisible(false);
             }
 
             // Check gender filters
             String personGender = person.getGender().toString().toLowerCase();
-            if(!filters.isEventFilterOn(personGender)) {
+            if (!filters.isEventFilterOn(personGender)) {
                 marker.setVisible(false);
             }
 
             // Check father's side filter
-            if(fathersSide.contains(person.getPersonId()) && !filters.isEventFilterOn("Father's Side")) {
+            if (fathersSide.contains(person.getPersonId()) && !filters.isEventFilterOn("Father's Side")) {
                 marker.setVisible(false);
             }
 
             // Check mother's side filter
-            if(mothersSide.contains(person.getPersonId()) && !filters.isEventFilterOn("Mother's Side")) {
+            if (mothersSide.contains(person.getPersonId()) && !filters.isEventFilterOn("Mother's Side")) {
                 marker.setVisible(false);
             }
 
             // If we turned off the event being displayed, reset the preview
-            if(event.equals(eventBeingDisplayed) && !marker.isVisible()) {
+            if (event.equals(eventBeingDisplayed) && !marker.isVisible()) {
                 resetEventPreview();
             }
 
@@ -275,7 +283,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
      */
     private void updateRelationshipLines() {
         // Draw family tree lines if there is an event to display
-        if(eventBeingDisplayed != null) {
+        if (eventBeingDisplayed != null) {
             clearRelationshipLines();
             if (FamilyMapModel.SINGLETON.mSettings.isFamilyTreeLinesOn()) {
                 int generation = 1;
@@ -297,14 +305,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     /**
      * Recursive function to draw the map polylines for the current person's life story
      * Connects lines between all of the person's events in chronological order
+     *
      * @param person - the person whose life story will be displayed
      */
     private void drawLifeStoryLines(Person person) {
-        if(person == null) {
+        if (person == null) {
             return; // This may occur if no person has been selected yet
         }
         Event currentEvent = person.getEarliestEvent();
-        while(currentEvent != null) {
+        while (currentEvent != null) {
             Event nextEvent = person.getEventFollowing(currentEvent);
             if (nextEvent != null) {
                 Polyline line = mMap.addPolyline(new PolylineOptions()
@@ -319,13 +328,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     /**
      * Draws a map polyline from the current event to the person's spouse's birth (or earliest event) if a spouse exists
+     *
      * @param event - the event from which to draw the line
      */
     private void drawSpouseLines(Event event) {
         Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
-        if(person.spouse != null ) {
+        if (person.spouse != null) {
             Event spouseBirth = person.spouse.getEarliestEvent();
-            if(spouseBirth != null) {
+            if (spouseBirth != null) {
                 Polyline line = mMap.addPolyline(new PolylineOptions()
                         .add(event.getLatLng(), spouseBirth.getLatLng())
                         .color(FamilyMapModel.SINGLETON.mSettings.getSpouseLinesColor())
@@ -338,14 +348,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     /**
      * Recursive function to draw family lines. It will recurse up both parent trees until there is no parent found.
      * Draws the lines with the appropriate color and decreasing with for each generation.
-     * @param event - The event from which the line will be drawn
+     *
+     * @param event      - The event from which the line will be drawn
      * @param generation - The current generation from which the lines being drawn (root = 1st gen.)
      */
     private void drawFamilyTreeLines(Event event, int generation) {
         Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
-        if(person.father != null) {
+        if (person.father != null) {
             Event fathersBirth = person.father.getEarliestEvent();
-            if(fathersBirth != null) {
+            if (fathersBirth != null) {
                 Polyline line = mMap.addPolyline(new PolylineOptions()
                         .add(event.getLatLng(), fathersBirth.getLatLng())
                         .color(FamilyMapModel.SINGLETON.mSettings.getFamilyTreeLinesColor())
@@ -356,13 +367,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
             }
         }
-        if(person.mother != null) {
+        if (person.mother != null) {
             Event mothersBirth = person.mother.getEarliestEvent();
-            if(mothersBirth != null) {
-                Polyline line =  mMap.addPolyline(new PolylineOptions()
-                                .add(event.getLatLng(), mothersBirth.getLatLng())
-                                .color(FamilyMapModel.SINGLETON.mSettings.getFamilyTreeLinesColor())
-                                .width(RELATIONSHIP_LINE_MAX_WIDTH / generation)); // Make the color decrease with generation
+            if (mothersBirth != null) {
+                Polyline line = mMap.addPolyline(new PolylineOptions()
+                        .add(event.getLatLng(), mothersBirth.getLatLng())
+                        .color(FamilyMapModel.SINGLETON.mSettings.getFamilyTreeLinesColor())
+                        .width(RELATIONSHIP_LINE_MAX_WIDTH / generation)); // Make the color decrease with generation
                 mRelationshipLines.add(line);
                 drawFamilyTreeLines(mothersBirth, generation + 1); // Recurse through mother's side
             }
@@ -373,7 +384,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
      * Clears all the relationship polylines on the screen so the appropriate ones can be redrawn
      */
     private void clearRelationshipLines() {
-        for(Polyline line : mRelationshipLines) {
+        for (Polyline line : mRelationshipLines) {
             line.remove();
         }
         mRelationshipLines.clear();
@@ -404,10 +415,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         mEventPreviewTextView.setText(marker.getTitle());
         personInfoDisplaying = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
         eventBeingDisplayed = event;
-        if(personInfoDisplaying.getGender() == Person.Gender.MALE) {
+        if (personInfoDisplaying.getGender() == Person.Gender.MALE) {
             mEventPreviewGenderIcon.setImageDrawable(MALE_ICON);
-        }
-        else {
+        } else {
             mEventPreviewGenderIcon.setImageDrawable(FEMALE_ICON);
         }
 

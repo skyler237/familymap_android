@@ -4,6 +4,7 @@ import com.skyler.android.familymap.network.HttpClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,15 +15,16 @@ public class FamilyMapModel {
     public static final FamilyMapModel SINGLETON = new FamilyMapModel();
     public User currentUser;
     public HttpClient httpClient;
-    private ArrayList<String> personIdList = new ArrayList<>();
     public Settings mSettings = new Settings();
     public Filters mFilters;
+    public boolean resetMapEventPreview = false;
+    private ArrayList<String> personIdList = new ArrayList<>();
 
     private FamilyMapModel() {
 
     }
 
-    public void setCurrentUser(User user){
+    public void setCurrentUser(User user) {
         currentUser = user;
     }
 
@@ -30,7 +32,7 @@ public class FamilyMapModel {
         return currentUser.relatedEvents;
     }
 
-    public HashMap<String,Person> getUserPersonMap() {
+    public HashMap<String, Person> getUserPersonMap() {
         return currentUser.relatedPeople;
     }
 
@@ -43,15 +45,15 @@ public class FamilyMapModel {
     }
 
     public void populateFamilyData() {
-        for(int i = 0; i < personIdList.size(); i++) {
+        for (int i = 0; i < personIdList.size(); i++) {
             Person person = currentUser.relatedPeople.get(personIdList.get(i));
-            if(person.getFatherId() != null) {
+            if (person.getFatherId() != null) {
                 person.setFather(currentUser.relatedPeople.get(person.getFatherId()));
             }
-            if(person.getMotherId() != null) {
+            if (person.getMotherId() != null) {
                 person.setMother(currentUser.relatedPeople.get(person.getMotherId()));
             }
-            if(person.getSpouseId() != null) {
+            if (person.getSpouseId() != null) {
                 person.setSpouse(currentUser.relatedPeople.get(person.getSpouseId()));
             }
         }
@@ -69,8 +71,9 @@ public class FamilyMapModel {
     /**
      * Gives the event types that are found in the data received.
      * Also adds "male," "female," "Father's side," and "Mother's side," which are not explicit event types.
+     *
      * @return - A list of strings representing existing event types
-     *      **Note** converts the set to a string, because the filter recycler view adapter requires a list, not a set
+     * **Note** converts the set to a string, because the filter recycler view adapter requires a list, not a set
      */
     public List<String> getEventFilterTypes() {
         Set<String> eventTypes = Event.eventTypes;
@@ -78,7 +81,7 @@ public class FamilyMapModel {
 
         List<String> listOfEventTypes = new ArrayList<>();
 
-        for(String eventType : eventTypes) {
+        for (String eventType : eventTypes) {
             listOfEventTypes.add(eventType);
         }
 
@@ -92,5 +95,37 @@ public class FamilyMapModel {
         return listOfEventTypes;
 
 
+    }
+
+    public Set<Person> searchPeopleFor(String searchText) {
+        Set<Person> searchResults = new HashSet<>();
+
+        for (String personId : personIdList) {
+            Person person = getUserPersonMap().get(personId);
+
+            if (person.getSearchableText().contains(searchText.toLowerCase())) {
+                searchResults.add(person);
+            }
+        }
+
+        return searchResults;
+    }
+
+    public Set<Event> searchEventsFor(String searchText) {
+        Set<Event> searchResults = new HashSet<>();
+
+        for (Event event : currentUser.relatedEvents) {
+            if (event.getSearchableText().contains(searchText.toLowerCase())) {
+                searchResults.add(event);
+            }
+        }
+        return searchResults;
+    }
+
+    public void clearData() {
+        currentUser.relatedEvents.clear();
+        currentUser.relatedPeople.clear();
+        personIdList.clear();
+        resetMapEventPreview = true;
     }
 }

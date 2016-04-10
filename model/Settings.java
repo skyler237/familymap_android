@@ -2,8 +2,6 @@ package com.skyler.android.familymap.model;
 
 import android.graphics.Color;
 
-import com.skyler.android.familymap.R;
-
 import static com.skyler.android.familymap.model.Settings.MapType.HYBRID;
 import static com.skyler.android.familymap.model.Settings.MapType.NORMAL;
 import static com.skyler.android.familymap.model.Settings.MapType.SATELLITE;
@@ -22,12 +20,8 @@ public class Settings {
     boolean spouseLinesOn = false;
     int spouseLinesColor;
     int spouseLinesColorIndex = 2;
-
-
-
-    public enum MapType {NORMAL, HYBRID, SATELLITE, TERRAIN}
-    private MapType mapType = NORMAL;
     int mapTypeIndex = 0;
+    private MapType mapType = NORMAL;
 
     public void resetSettings() {
         lifeStoryLinesOn = false;
@@ -47,7 +41,6 @@ public class Settings {
     public void setMapTypeIndex(int mapTypeIndex) {
         this.mapTypeIndex = mapTypeIndex;
     }
-
 
     public MapType getMapType() {
         return mapType;
@@ -76,12 +69,12 @@ public class Settings {
         return familyTreeLinesColor;
     }
 
-    public void setFamilyTreeLinesColor(int familyTreeLinesColor) {
-        this.familyTreeLinesColor = familyTreeLinesColor;
-    }
-
     public void setFamilyTreeLinesColor(String colorString) {
         this.familyTreeLinesColor = Color.parseColor(colorString);
+    }
+
+    public void setFamilyTreeLinesColor(int familyTreeLinesColor) {
+        this.familyTreeLinesColor = familyTreeLinesColor;
     }
 
     public boolean isFamilyTreeLinesOn() {
@@ -96,12 +89,12 @@ public class Settings {
         return lifeStoryLinesColor;
     }
 
-    public void setLifeStoryLinesColor(int lifeStoryLinesColor) {
-        this.lifeStoryLinesColor = lifeStoryLinesColor;
-    }
-
     public void setLifeStoryLinesColor(String spinnerColor) {
         lifeStoryLinesColor = Color.parseColor(spinnerColor);
+    }
+
+    public void setLifeStoryLinesColor(int lifeStoryLinesColor) {
+        this.lifeStoryLinesColor = lifeStoryLinesColor;
     }
 
     public boolean isLifeStoryLinesOn() {
@@ -116,12 +109,12 @@ public class Settings {
         return spouseLinesColor;
     }
 
-    public void setSpouseLinesColor(int spouseLinesColor) {
-        this.spouseLinesColor = spouseLinesColor;
-    }
-
     public void setSpouseLinesColor(String colorString) {
         this.spouseLinesColor = Color.parseColor(colorString);
+    }
+
+    public void setSpouseLinesColor(int spouseLinesColor) {
+        this.spouseLinesColor = spouseLinesColor;
     }
 
     public boolean isSpouseLinesOn() {
@@ -155,5 +148,7 @@ public class Settings {
     public void setFamilyTreeLinesColorIndex(int index) {
         familyTreeLinesColorIndex = index;
     }
+
+    public enum MapType {NORMAL, HYBRID, SATELLITE, TERRAIN}
 
 }
