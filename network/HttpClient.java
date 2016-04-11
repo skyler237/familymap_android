@@ -1,7 +1,10 @@
 package com.skyler.android.familymap.network;
 
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.skyler.android.familymap.main_activity.MainActivity;
 import com.skyler.android.familymap.model.Event;
 import com.skyler.android.familymap.model.FamilyMapModel;
 import com.skyler.android.familymap.model.Person;
@@ -19,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Skyler on 3/15/2016.
@@ -43,12 +47,24 @@ public class HttpClient {
     }
 
     /**
+     * Attempts to log <code>user</code> in to the current server
+     * @param user - The user to be logged in
+     * @return - returns true if login was successful and false if not.
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public boolean login(User user) throws ExecutionException, InterruptedException {
+        FamilyMapModel.SINGLETON.setCurrentUser(user);
+        return new LoginTask().execute().get(); // Returns whether or not the login was successful
+    }
+
+    /**
      * Attempts to log in the specified user at the specified url
      *
      * @param user - the user to be logged in
      * @return
      */
-    public boolean login(User user) throws MalformedURLException {
+    private boolean performLogin(User user) throws MalformedURLException {
         URL url = new URL(baseUrl + "/user/login");
         HttpURLConnection connection = null;
         try {
@@ -301,5 +317,25 @@ public class HttpClient {
             return false;
         }
 
+    }
+
+    public class LoginTask extends AsyncTask<URL, Integer, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(URL... params) {
+            boolean result;
+            try {
+                result = performLogin(FamilyMapModel.SINGLETON.currentUser);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                result = false;
+            }
+
+            return result;
+        }
+
+        protected void onPostExecute(Boolean loginSuccess) {
+
+        }
     }
 }

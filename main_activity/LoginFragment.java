@@ -24,6 +24,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -159,18 +160,26 @@ public class LoginFragment extends Fragment {
     private void onButtonClicked() {
         // Perform sign in here
 
-        LoginTask loginTask = new LoginTask();
-
-
-        FamilyMapModel.SINGLETON.httpClient = new HttpClient(getServerHost(), getServerPort());
-        httpClient = FamilyMapModel.SINGLETON.httpClient;
-        // FOR TESTING
-//        httpClient = new HttpClient("192.168.203.1","8080");
         currentUser = new User(getUsername(), getPassword());
         FamilyMapModel.SINGLETON.setCurrentUser(currentUser);
 
-        //Execute task
-        loginTask.execute();
+        FamilyMapModel.SINGLETON.httpClient = new HttpClient(getServerHost(), getServerPort());
+        httpClient = FamilyMapModel.SINGLETON.httpClient;
+        boolean loginSuccess = false;
+        try {
+            loginSuccess = httpClient.login(currentUser);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (loginSuccess) {
+            Toast.makeText(getContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Login Failed", Toast.LENGTH_LONG).show();
+        }
+
 
         RetrieveFamilyDataTask retrieveFamilyDataTask = new RetrieveFamilyDataTask();
         retrieveFamilyDataTask.execute();
@@ -220,29 +229,6 @@ public class LoginFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public class LoginTask extends AsyncTask<URL, Integer, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(URL... params) {
-            boolean result;
-            try {
-                result = httpClient.login(currentUser);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                result = false;
-            }
-
-            return result;
-        }
-
-        protected void onPostExecute(Boolean loginSuccess) {
-            if (loginSuccess) {
-                Toast.makeText(getContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Login Failed", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
 
     public class RetrieveFamilyDataTask extends AsyncTask<URL, Integer, Boolean> {
 
