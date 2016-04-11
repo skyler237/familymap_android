@@ -217,13 +217,33 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
 
-        if (FamilyMapModel.SINGLETON.resetMapEventPreview) {
-            resetEventPreview();
-            FamilyMapModel.SINGLETON.resetMapEventPreview = false;
-        }
+
         updateRelationshipLines();
         updateMapType();
         updateFilteredEvents();
+        if (FamilyMapModel.SINGLETON.resetMapEventPreview) {
+            resetEventPreview();
+            clearRelationshipLines();
+            FamilyMapModel.SINGLETON.resetMapEventPreview = false;
+        }
+
+        if(FamilyMapModel.SINGLETON.resyncEventMarkers) {
+            for (Event event :
+                    FamilyMapModel.SINGLETON.getUserEvents()) {
+
+                // Add a marker for each event
+                LatLng eventLocation = new LatLng(event.getLatitude(), event.getLongitude());
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(eventLocation)
+                        .title(event.toString())
+                        .icon(BitmapDescriptorFactory.defaultMarker(event.getColor()))
+                        .snippet(event.getEventId()); // Store event ID in snippet
+                Marker marker = mMap.addMarker(markerOptions);
+                mEventMarkers.add(marker);
+
+            }
+            FamilyMapModel.SINGLETON.resyncEventMarkers = false;
+        }
     }
 
     private void resetEventPreview() {
@@ -272,6 +292,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             // If we turned off the event being displayed, reset the preview
             if (event.equals(eventBeingDisplayed) && !marker.isVisible()) {
                 resetEventPreview();
+                clearRelationshipLines();
             }
 
         }
@@ -332,6 +353,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * @param event - the event from which to draw the line
      */
     private void drawSpouseLines(Event event) {
+        for(Marker marker : mEventMarkers) {
+            // If the current event is not being displayed, don't draw the lines
+            if(marker.getSnippet().equals(event.getEventId()) && !marker.isVisible()) {
+                return;
+            }
+        }
+
         Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
         if (person.spouse != null) {
             Event spouseBirth = person.spouse.getEarliestEvent();

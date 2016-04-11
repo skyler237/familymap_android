@@ -19,6 +19,7 @@ public class FamilyMapModel {
     public Filters mFilters;
     public boolean resetMapEventPreview = false;
     private ArrayList<String> personIdList = new ArrayList<>();
+    public boolean resyncEventMarkers = false;
 
     private FamilyMapModel() {
 
@@ -127,5 +128,6 @@ public class FamilyMapModel {
         currentUser.relatedPeople.clear();
         personIdList.clear();
         resetMapEventPreview = true;
+        resyncEventMarkers = true;
     }
 }

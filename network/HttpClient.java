@@ -2,6 +2,11 @@ package com.skyler.android.familymap.network;
 
 import android.util.Log;
 
+import com.skyler.android.familymap.model.Event;
+import com.skyler.android.familymap.model.FamilyMapModel;
+import com.skyler.android.familymap.model.Person;
+import com.skyler.android.familymap.model.User;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,11 +20,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-import com.skyler.android.familymap.model.Event;
-import com.skyler.android.familymap.model.FamilyMapModel;
-import com.skyler.android.familymap.model.Person;
-import com.skyler.android.familymap.model.User;
-
 /**
  * Created by Skyler on 3/15/2016.
  * Manages the networking portion of this app - performs logins, data accesses, etc.
@@ -30,6 +30,7 @@ public class HttpClient {
 
     /**
      * Constructs an HttpClient that will be accessing the specified host and port
+     *
      * @param serverHost - the host to be accessed (e.g. IP address)
      * @param serverPort - the port being accessed (e.g. 8080)
      */
@@ -43,6 +44,7 @@ public class HttpClient {
 
     /**
      * Attempts to log in the specified user at the specified url
+     *
      * @param user - the user to be logged in
      * @return
      */
@@ -98,12 +100,11 @@ public class HttpClient {
             }
 
         } catch (ProtocolException e) {
-            Log.e("LoginTask","Protocol Exception!! - URL: " + url.toString());
+            Log.e("LoginTask", "Protocol Exception!! - URL: " + url.toString());
             e.printStackTrace();
             return false;
-        }
-        catch (IOException e) {
-            Log.e("LoginTask","IO Exception!! - URL: " + url.toString());
+        } catch (IOException e) {
+            Log.e("LoginTask", "IO Exception!! - URL: " + url.toString());
             if (connection != null) {
                 try {
                     Log.i("LoginTask", "Response code: " + String.valueOf(connection.getResponseCode()));
@@ -114,7 +115,7 @@ public class HttpClient {
             e.printStackTrace();
             return false;
         } catch (JSONException e) {
-            Log.e("LoginTask","JSON Exception!! - URL: " + url.toString());
+            Log.e("LoginTask", "JSON Exception!! - URL: " + url.toString());
             e.printStackTrace();
             return false;
         }
@@ -123,16 +124,17 @@ public class HttpClient {
 
     /**
      * This function gets the person information for the current user (i.e. name, id, gender, father, mother, etc.)
+     *
      * @param user - the user about whom we are getting the information
      * @return - true if successful; false if unsuccessful -- NOTE: stores the information in the user object
      * @throws MalformedURLException
      */
     public boolean retrievePersonData(User user) throws IOException, JSONException {
-        if(user.isLoggedIn) { // Check to see if this user is logged in
+        if (user.isLoggedIn) { // Check to see if this user is logged in
             try {
                 URL url = new URL(baseUrl + "/person/" + user.getPersonId());
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("Authorization",user.getAuthorizationToken());
+                connection.setRequestProperty("Authorization", user.getAuthorizationToken());
                 connection.setRequestMethod("GET");
                 connection.connect();
 
@@ -161,20 +163,17 @@ public class HttpClient {
 
                     return true;
 
-                }
-                else {
+                } else {
                     // SERVER RETURNED AN HTTP ERROR
-                    Log.e("retrievePersonData","HTTP Error!! - URL: " + url.toString());
+                    Log.e("retrievePersonData", "HTTP Error!! - URL: " + url.toString());
                     return false;
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
 
-        }
-        else {
+        } else {
             return false;
         }
 
@@ -182,16 +181,17 @@ public class HttpClient {
 
     /**
      * This function gets the data for all the people associated with the specified user
+     *
      * @param user - the user about whom we are getting the information
      * @return - true if successful; false if unsuccessful -- NOTE: stores the information in the user object
      * @throws MalformedURLException
      */
     public boolean retrieveAllPeopleData(User user) throws IOException, JSONException {
-        if(user.isLoggedIn) { // Check to see if this user is logged in
+        if (user.isLoggedIn) { // Check to see if this user is logged in
             try {
                 URL url = new URL(baseUrl + "/person/");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("Authorization",user.getAuthorizationToken());
+                connection.setRequestProperty("Authorization", user.getAuthorizationToken());
                 connection.setRequestMethod("GET");
                 connection.connect();
 
@@ -215,7 +215,7 @@ public class HttpClient {
                     JSONArray dataArray = responseBodyJSON.getJSONArray("data");
 
                     // Gather all people info
-                    for(int i = 0; i < dataArray.length(); i++) {
+                    for (int i = 0; i < dataArray.length(); i++) {
                         Person person = new Person(dataArray.getJSONObject(i));
                         FamilyMapModel.SINGLETON.addPerson(person);
 
@@ -224,20 +224,17 @@ public class HttpClient {
 
                     return true;
 
-                }
-                else {
+                } else {
                     // SERVER RETURNED AN HTTP ERROR
-                    Log.e("retrieveAllPeopleData","HTTP Error!! - URL: " + url.toString());
+                    Log.e("retrieveAllPeopleData", "HTTP Error!! - URL: " + url.toString());
                     return false;
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
 
-        }
-        else {
+        } else {
             return false;
         }
 
@@ -246,16 +243,17 @@ public class HttpClient {
 
     /**
      * This function gets all the event data for all family members of the specified user
+     *
      * @param user - the user about whom we are getting the information
      * @return - true if successful; false if unsuccessful -- NOTE: stores the information in the user object
      * @throws MalformedURLException
      */
     public boolean retrieveAllEventData(User user) throws IOException, JSONException {
-        if(user.isLoggedIn) { // Check to see if this user is logged in
+        if (user.isLoggedIn) { // Check to see if this user is logged in
             try {
                 URL url = new URL(baseUrl + "/event/");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("Authorization",user.getAuthorizationToken());
+                connection.setRequestProperty("Authorization", user.getAuthorizationToken());
                 connection.setRequestMethod("GET");
                 connection.connect();
 
@@ -279,7 +277,7 @@ public class HttpClient {
                     JSONArray dataArray = responseBodyJSON.getJSONArray("data");
 
                     // Gather all event info
-                    for(int i = 0; i < dataArray.length(); i++) {
+                    for (int i = 0; i < dataArray.length(); i++) {
                         Event event = new Event(dataArray.getJSONObject(i));
                         user.addRelatedEvent(event);
                     }
@@ -289,20 +287,17 @@ public class HttpClient {
 
                     return true;
 
-                }
-                else {
+                } else {
                     // SERVER RETURNED AN HTTP ERROR
-                    Log.e("retrieveAllEventData","HTTP Error!! - URL: " + url.toString());
+                    Log.e("retrieveAllEventData", "HTTP Error!! - URL: " + url.toString());
                     return false;
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
 
-        }
-        else {
+        } else {
             return false;
         }
 

@@ -36,9 +36,9 @@ import java.net.URL;
 public class LoginFragment extends Fragment {
     static final String DEFAULT_USERNAME = "skyler237";
     static final String DEFAULT_PASSWORD = "pw";
-    static final String DEFAULT_HOST = "192.168.1.14";
-    //    static final String DEFAULT_HOST = "192.168.2.219";
-//    static final String DEFAULT_HOST = "10.24.199.17";
+//    static final String DEFAULT_HOST = "192.168.1.14";
+        static final String DEFAULT_HOST = "192.168.250.16";
+//    static final String DEFAULT_HOST = "10.19.52.209";
     static final String DEFAULT_PORT = "8080";
     public static HttpClient httpClient;
     private static EditText usernameEditText;
@@ -220,7 +220,7 @@ public class LoginFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    class LoginTask extends AsyncTask<URL, Integer, Boolean> {
+    public class LoginTask extends AsyncTask<URL, Integer, Boolean> {
 
         @Override
         protected Boolean doInBackground(URL... params) {
@@ -244,7 +244,7 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    class RetrieveFamilyDataTask extends AsyncTask<URL, Integer, Boolean> {
+    public class RetrieveFamilyDataTask extends AsyncTask<URL, Integer, Boolean> {
 
         @Override
         protected Boolean doInBackground(URL... params) {
