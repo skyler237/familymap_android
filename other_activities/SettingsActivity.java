@@ -156,7 +156,17 @@ public class SettingsActivity extends AppCompatActivity {
         mResyncButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ResyncDataTask().execute();
+                boolean resyncDataSuccess = FamilyMapModel.SINGLETON.httpClient.resyncData();
+                if (resyncDataSuccess) {
+                    Toast.makeText(getBaseContext(), "Data synchronization successful", Toast.LENGTH_LONG).show();
+
+                    // Go to top
+                    Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getBaseContext(), "Data synchronization failed", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -208,62 +218,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-
-    class ResyncDataTask extends AsyncTask<URL, Integer, Boolean> {
-        HttpClient httpClient = FamilyMapModel.SINGLETON.httpClient;
-        User currentUser = FamilyMapModel.SINGLETON.currentUser;
-
-        protected Boolean doInBackground(URL... params) {
-
-            boolean retrievePersonSuccessful;
-            boolean retrieveAllPeopleSuccessful;
-            boolean retrieveAllEventsSuccessful;
-            try {
-                FamilyMapModel.SINGLETON.clearData();
-                retrievePersonSuccessful = httpClient.retrievePersonData(currentUser);
-                retrieveAllPeopleSuccessful = httpClient.retrieveAllPeopleData(currentUser);
-                retrieveAllEventsSuccessful = httpClient.retrieveAllEventData(currentUser);
-
-                if (!retrievePersonSuccessful) {
-                    Log.e("RetrieveFamilyDataTask", "retrieve person data unsuccessful");
-                    return false;
-                } else if (!retrieveAllPeopleSuccessful) {
-                    Log.e("RetrieveFamilyDataTask", "retrieve all people data unsuccessful");
-                    return false;
-                } else if (!retrieveAllEventsSuccessful) {
-                    Log.e("RetrieveFamilyDataTask", "retrieve all events data unsuccessful");
-                    return false;
-                } else {
-                    // All went well!
-                    return true;
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return false;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return false;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-
-        }
-
-        protected void onPostExecute(Boolean success) {
-            if (success) {
-                Toast.makeText(getBaseContext(), "Data synchronization successful", Toast.LENGTH_LONG).show();
-
-                // Go to top
-                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            } else {
-                Toast.makeText(getBaseContext(), "Data synchronization failed", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 }
 

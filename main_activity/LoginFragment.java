@@ -38,19 +38,15 @@ public class LoginFragment extends Fragment {
     static final String DEFAULT_USERNAME = "skyler237";
     static final String DEFAULT_PASSWORD = "pw";
 //    static final String DEFAULT_HOST = "192.168.1.14";
-        static final String DEFAULT_HOST = "192.168.250.16";
-//    static final String DEFAULT_HOST = "10.19.52.209";
+//        static final String DEFAULT_HOST = "192.168.250.16";
+    static final String DEFAULT_HOST = "10.24.222.69";
     static final String DEFAULT_PORT = "8080";
     public static HttpClient httpClient;
     private static EditText usernameEditText;
     private static EditText passwordEditText;
     public User currentUser;
     private OnLoginButtonPressedListener mListener;
-    private TextView usernameTextView;
-    private TextView passwordTextView;
-    private TextView serverHostTextView;
     private EditText serverHostEditText;
-    private TextView serverPortTextView;
     private EditText serverPortEditText;
     private Button mSignInButton;
     private String authorizationToken;
@@ -165,15 +161,8 @@ public class LoginFragment extends Fragment {
 
         FamilyMapModel.SINGLETON.httpClient = new HttpClient(getServerHost(), getServerPort());
         httpClient = FamilyMapModel.SINGLETON.httpClient;
-        boolean loginSuccess = false;
-        try {
-            loginSuccess = httpClient.login(currentUser);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
+        boolean loginSuccess = httpClient.login(currentUser);
         if (loginSuccess) {
             Toast.makeText(getContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
         } else {
@@ -181,12 +170,16 @@ public class LoginFragment extends Fragment {
         }
 
 
-        RetrieveFamilyDataTask retrieveFamilyDataTask = new RetrieveFamilyDataTask();
-        retrieveFamilyDataTask.execute();
-
-        // Transfer to Map fragment
-
-
+        boolean retrieveDataSuccess = httpClient.retrieveFamilyData();
+        if (retrieveDataSuccess) {
+            Toast.makeText(getContext(), "Welcome, " + currentUser.getFirstName() + " " + currentUser.getLastName() + "!", Toast.LENGTH_LONG).show();
+            FamilyMapModel.SINGLETON.setCurrentUser(currentUser); // Save the current user in the com.skyler.android.familymap.model before we exit
+            mListener.onLoginSuccessful(); //Tell the main activity that we have logged in
+        } else {
+            if (currentUser.isLoggedIn) { // Only display this if the login was successful, but the data retrieval was not
+                Toast.makeText(getContext(), "Data retrieval failed", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -206,81 +199,11 @@ public class LoginFragment extends Fragment {
         mListener = null;
     }
 
-    public void showLoginResult(Boolean result) {
-        Toast.makeText(getContext(), result.toString(), Toast.LENGTH_SHORT).show();
-    }
-
     public interface OnLoginButtonPressedListener {
         void onLoginSuccessful();
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 
-
-    public class RetrieveFamilyDataTask extends AsyncTask<URL, Integer, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(URL... params) {
-
-            boolean retrievePersonSuccessful;
-            boolean retrieveAllPeopleSuccessful;
-            boolean retrieveAllEventsSuccessful;
-            try {
-                retrievePersonSuccessful = httpClient.retrievePersonData(currentUser);
-                retrieveAllPeopleSuccessful = httpClient.retrieveAllPeopleData(currentUser);
-                retrieveAllEventsSuccessful = httpClient.retrieveAllEventData(currentUser);
-
-                if (!retrievePersonSuccessful) {
-                    Log.e("RetrieveFamilyDataTask", "retrieve person data unsuccessful");
-                    return false;
-                } else if (!retrieveAllPeopleSuccessful) {
-                    Log.e("RetrieveFamilyDataTask", "retrieve all people data unsuccessful");
-                    return false;
-                } else if (!retrieveAllEventsSuccessful) {
-                    Log.e("RetrieveFamilyDataTask", "retrieve all events data unsuccessful");
-                    return false;
-                } else {
-                    // All went well!
-                    return true;
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return false;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return false;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-
-        }
-
-        protected void onPostExecute(Boolean success) {
-            if (success) {
-                Toast.makeText(getContext(), "Welcome, " + currentUser.getFirstName() + " " + currentUser.getLastName() + "!", Toast.LENGTH_LONG).show();
-                FamilyMapModel.SINGLETON.setCurrentUser(currentUser); // Save the current user in the com.skyler.android.familymap.model before we exit
-                mListener.onLoginSuccessful(); //Tell the main activity that we have logged in
-            } else {
-                if (currentUser.isLoggedIn) { // Only display this if the login was successful, but the data retrieval was not
-                    Toast.makeText(getContext(), "Data retrieval failed", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-    }
 }
 
 

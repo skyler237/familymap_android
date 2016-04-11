@@ -1,5 +1,6 @@
 package com.skyler.android.familymap.network;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -53,10 +54,34 @@ public class HttpClient {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public boolean login(User user) throws ExecutionException, InterruptedException {
+    public boolean login(User user) {
         FamilyMapModel.SINGLETON.setCurrentUser(user);
-        return new LoginTask().execute().get(); // Returns whether or not the login was successful
+        try {
+            return new LoginTask().execute().get(); // Returns whether or not the login was successful
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
+
+    public boolean retrieveFamilyData() {
+        try {
+            return new RetrieveFamilyDataTask().execute().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean resyncData() {
+        try {
+            return new ResyncDataTask().execute().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     /**
      * Attempts to log in the specified user at the specified url
@@ -145,7 +170,7 @@ public class HttpClient {
      * @return - true if successful; false if unsuccessful -- NOTE: stores the information in the user object
      * @throws MalformedURLException
      */
-    public boolean retrievePersonData(User user) throws IOException, JSONException {
+    private boolean retrievePersonData(User user) throws IOException, JSONException {
         if (user.isLoggedIn) { // Check to see if this user is logged in
             try {
                 URL url = new URL(baseUrl + "/person/" + user.getPersonId());
@@ -202,7 +227,7 @@ public class HttpClient {
      * @return - true if successful; false if unsuccessful -- NOTE: stores the information in the user object
      * @throws MalformedURLException
      */
-    public boolean retrieveAllPeopleData(User user) throws IOException, JSONException {
+    private boolean retrieveAllPeopleData(User user) throws IOException, JSONException {
         if (user.isLoggedIn) { // Check to see if this user is logged in
             try {
                 URL url = new URL(baseUrl + "/person/");
@@ -264,7 +289,7 @@ public class HttpClient {
      * @return - true if successful; false if unsuccessful -- NOTE: stores the information in the user object
      * @throws MalformedURLException
      */
-    public boolean retrieveAllEventData(User user) throws IOException, JSONException {
+    private boolean retrieveAllEventData(User user) throws IOException, JSONException {
         if (user.isLoggedIn) { // Check to see if this user is logged in
             try {
                 URL url = new URL(baseUrl + "/event/");
@@ -319,7 +344,7 @@ public class HttpClient {
 
     }
 
-    public class LoginTask extends AsyncTask<URL, Integer, Boolean> {
+    private class LoginTask extends AsyncTask<URL, Integer, Boolean> {
 
         @Override
         protected Boolean doInBackground(URL... params) {
@@ -335,6 +360,96 @@ public class HttpClient {
         }
 
         protected void onPostExecute(Boolean loginSuccess) {
+            // Do nothing...
+        }
+    }
+
+    private class RetrieveFamilyDataTask extends AsyncTask<URL, Integer, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(URL... params) {
+            User currentUser = FamilyMapModel.SINGLETON.currentUser;
+            boolean retrievePersonSuccessful;
+            boolean retrieveAllPeopleSuccessful;
+            boolean retrieveAllEventsSuccessful;
+            try {
+                retrievePersonSuccessful = retrievePersonData(currentUser);
+                retrieveAllPeopleSuccessful = retrieveAllPeopleData(currentUser);
+                retrieveAllEventsSuccessful = retrieveAllEventData(currentUser);
+
+                if (!retrievePersonSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve person data unsuccessful");
+                    return false;
+                } else if (!retrieveAllPeopleSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve all people data unsuccessful");
+                    return false;
+                } else if (!retrieveAllEventsSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve all events data unsuccessful");
+                    return false;
+                } else {
+                    // All went well!
+                    return true;
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return false;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        }
+
+        protected void onPostExecute(Boolean success) {
+            // Do nothing...
+        }
+    }
+
+    class ResyncDataTask extends AsyncTask<URL, Integer, Boolean> {
+        HttpClient httpClient = FamilyMapModel.SINGLETON.httpClient;
+        User currentUser = FamilyMapModel.SINGLETON.currentUser;
+
+        protected Boolean doInBackground(URL... params) {
+
+            boolean retrievePersonSuccessful;
+            boolean retrieveAllPeopleSuccessful;
+            boolean retrieveAllEventsSuccessful;
+            try {
+                FamilyMapModel.SINGLETON.clearData();
+                retrievePersonSuccessful = httpClient.retrievePersonData(currentUser);
+                retrieveAllPeopleSuccessful = httpClient.retrieveAllPeopleData(currentUser);
+                retrieveAllEventsSuccessful = httpClient.retrieveAllEventData(currentUser);
+
+                if (!retrievePersonSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve person data unsuccessful");
+                    return false;
+                } else if (!retrieveAllPeopleSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve all people data unsuccessful");
+                    return false;
+                } else if (!retrieveAllEventsSuccessful) {
+                    Log.e("RetrieveFamilyDataTask", "retrieve all events data unsuccessful");
+                    return false;
+                } else {
+                    // All went well!
+                    return true;
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return false;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        }
+
+        protected void onPostExecute(Boolean success) {
 
         }
     }
