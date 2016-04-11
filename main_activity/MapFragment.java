@@ -217,17 +217,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
 
-
-        updateRelationshipLines();
-        updateMapType();
-        updateFilteredEvents();
-        if (FamilyMapModel.SINGLETON.resetMapEventPreview) {
-            resetEventPreview();
-            clearRelationshipLines();
-            FamilyMapModel.SINGLETON.resetMapEventPreview = false;
-        }
-
         if(FamilyMapModel.SINGLETON.resyncEventMarkers) {
+            for(Marker marker : mEventMarkers) {
+                marker.remove();
+            }
+            mEventMarkers.clear();
+
             for (Event event :
                     FamilyMapModel.SINGLETON.getUserEvents()) {
 
@@ -244,6 +239,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
             FamilyMapModel.SINGLETON.resyncEventMarkers = false;
         }
+
+        updateRelationshipLines();
+        updateMapType();
+        updateFilteredEvents();
+        if (FamilyMapModel.SINGLETON.resetMapEventPreview) {
+            resetEventPreview();
+            clearRelationshipLines();
+            FamilyMapModel.SINGLETON.resetMapEventPreview = false;
+        }
+
+
     }
 
     private void resetEventPreview() {
@@ -260,6 +266,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Set<String> mothersSide = FamilyMapModel.SINGLETON.currentUser.getMothersSideIDs();
         for (Marker marker : mEventMarkers) {
             Event event = FamilyMapModel.SINGLETON.getEvent(marker.getSnippet());
+//            if(event == null) {
+//                continue;
+//            }
 
 
             Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());

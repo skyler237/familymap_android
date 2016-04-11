@@ -77,8 +77,12 @@ public class FamilyMapModel {
      * **Note** converts the set to a string, because the filter recycler view adapter requires a list, not a set
      */
     public List<String> getEventFilterTypes() {
-        Set<String> eventTypes = Event.eventTypes;
+        Set<String> eventTypes = new HashSet<>();
 
+        // Add all the event types to a set, but remain case insensitive
+        for(String eventType : Event.eventTypes) {
+            eventTypes.add(eventType.toLowerCase());
+        }
 
         List<String> listOfEventTypes = new ArrayList<>();
 
