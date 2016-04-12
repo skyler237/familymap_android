@@ -57,7 +57,8 @@ public class HttpClient {
     public boolean login(User user) {
         FamilyMapModel.SINGLETON.setCurrentUser(user);
         try {
-            return new LoginTask().execute().get(); // Returns whether or not the login was successful
+            LoginTask loginTask = new LoginTask();
+            return loginTask.execute().get(); // Returns whether or not the login was successful
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }

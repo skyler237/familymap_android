@@ -9,14 +9,14 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.skyler.android.familymap.R;
 
+/**
+ * This is the main activity for the app. It contains both a login fragment and a map fragment.
+ */
 public class MainActivity extends FragmentActivity
         implements LoginFragment.OnLoginButtonPressedListener {
 
     private LoginFragment loginFragment;
     private MapFragment mapFragment;
-    private GoogleMap mMap;
-    private TextView mEventPreviewTextView;
-    private ImageView mEventPreviewGenderIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +34,9 @@ public class MainActivity extends FragmentActivity
 
     }
 
+    /**
+     * Handles the transition from the login fragment to the map fragment
+     */
     @Override
     public void onLoginSuccessful() {
         FragmentManager fm = this.getSupportFragmentManager();

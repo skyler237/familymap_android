@@ -47,6 +47,19 @@ public class Event implements Comparable {
         }
     }
 
+    public Event(String eventID, String eventPersonID, Double latitude, Double longitude,
+                 String country, String city, String description, String year) {
+        setEventId(eventID);
+        this.personId = eventPersonID;
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setCountry(country);
+        setCity(city);
+        setDescription(description);
+        setYear(year);
+        setColor();
+    }
+
     @Override
     public String toString() {
         String str = getPersonName() + "\n";
@@ -149,7 +162,21 @@ public class Event implements Comparable {
         if (o == null) {
             return false;
         } else if (o.getClass() == this.getClass()) {
-            return this.getEventId().equals(((Event) o).eventId);
+            Event event = (Event) o;
+            boolean result = this.getEventId().equals(event.eventId) &&
+                    this.getPersonId().equals(event.getPersonId()) &&
+                    this.getLatitude() == event.getLatitude() &&
+                    this.getLongitude() == event.getLongitude() &&
+                    this.getCountry().equals(event.getCountry()) &&
+                    this.getCity().equals(event.getCity()) &&
+                    this.getDescription().equals(event.getDescription());
+            if(!(event.getYear() == null && this.getYear() == null ||
+                    event.getYear().equals(this.getYear()))) {
+                return false;
+            }
+            else {
+                return result;
+            }
         } else {
             return false;
         }

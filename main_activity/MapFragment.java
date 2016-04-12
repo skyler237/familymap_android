@@ -43,14 +43,9 @@ import java.util.Set;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MapFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MapFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * This fragment handles the main map screen of the app as part of the main activity
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment {
     private static final float RELATIONSHIP_LINE_MAX_WIDTH = 15.0f;
     GoogleMap mMap;
     MapView mMapView;
@@ -85,7 +80,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      *
      * @return A new instance of fragment MapFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static MapFragment newInstance() {
         return new MapFragment();
     }
@@ -121,6 +115,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         mMap = mMapView.getMap();
 
+        // Draw all the markers
         LatLng userBirth = null;
         for (Event event :
                 FamilyMapModel.SINGLETON.getUserEvents()) {
@@ -144,6 +139,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.moveCamera(CameraUpdateFactory.newLatLng(userBirth));
         }
 
+        // Set up marker interaction
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -153,6 +149,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        // Set up the event preview at the bottom of the screen
         mEventPreviewLayout = (LinearLayout) v.findViewById(R.id.eventPreview);
         mEventPreviewLayout.setClickable(false);
         mEventPreviewLayout.setOnClickListener(new View.OnClickListener() {
@@ -173,14 +170,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mEventPreviewTextView = (TextView) v.findViewById(R.id.eventPreviewText);
         mEventPreviewTextView.setText("Click on a marker\nto see event details.");
 
-
+        // Setup the toolbar
         mToolbarSearchIcon = (ImageView) v.findViewById(R.id.toolbarSearchIcon);
         mToolbarSearchIcon.setImageDrawable(SEARCH_ICON);
         mToolbarSearchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Go to Search Activity
-                // TODO: 3/25/2016 Transfer to search activity
                 Intent intent = new Intent(getContext(), SearchActivity.class);
                 startActivity(intent);
             }
@@ -217,6 +213,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
 
+        // If necessary, re-sync the markers
         if(FamilyMapModel.SINGLETON.resyncEventMarkers) {
             for(Marker marker : mEventMarkers) {
                 marker.remove();
@@ -240,18 +237,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             FamilyMapModel.SINGLETON.resyncEventMarkers = false;
         }
 
+        // Update lines, map type, and filters to reflect any changes in settings
         updateRelationshipLines();
         updateMapType();
         updateFilteredEvents();
+
+        // If the current event is no longer being shown, reset the event preview
         if (FamilyMapModel.SINGLETON.resetMapEventPreview) {
             resetEventPreview();
             clearRelationshipLines();
             FamilyMapModel.SINGLETON.resetMapEventPreview = false;
         }
-
-
     }
 
+    /**
+     * Resets the event preview display to default, displaying no particular event
+     */
     private void resetEventPreview() {
         eventBeingDisplayed = null;
         personInfoDisplaying = null;
@@ -260,17 +261,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mEventPreviewLayout.setClickable(false);
     }
 
+    /**
+     * Checks all markers and only displays those which have the filter setting still on
+     */
     private void updateFilteredEvents() {
         Filters filters = FamilyMapModel.SINGLETON.mFilters;
         Set<String> fathersSide = FamilyMapModel.SINGLETON.currentUser.getFathersSideIDs();
         Set<String> mothersSide = FamilyMapModel.SINGLETON.currentUser.getMothersSideIDs();
         for (Marker marker : mEventMarkers) {
             Event event = FamilyMapModel.SINGLETON.getEvent(marker.getSnippet());
-//            if(event == null) {
-//                continue;
-//            }
-
-
             Person person = FamilyMapModel.SINGLETON.getUserPersonMap().get(event.getPersonId());
 
             // Turn marker on by default
@@ -303,7 +302,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 resetEventPreview();
                 clearRelationshipLines();
             }
-
         }
     }
 
@@ -427,7 +425,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mRelationshipLines.clear();
     }
 
-
+    /**
+     * Sets the map type to reflect the current setting
+     */
     private void updateMapType() {
         switch (FamilyMapModel.SINGLETON.mSettings.getMapType()) {
 
@@ -446,6 +446,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Displays the event info of the selected marker in the preview area at the bottom of the screen
+     * @param marker - the selected marker for which we will display the info
+     */
     private void displayMarkerEventInfo(Marker marker) {
         mEventPreviewLayout.setClickable(true); // Make the preview clickable only if there is a person selected
         Event event = FamilyMapModel.SINGLETON.getEvent(marker.getSnippet());
@@ -471,25 +475,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onDetach() {
         super.onDetach();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        String test = "this is a test!";
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

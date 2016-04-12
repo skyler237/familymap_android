@@ -27,12 +27,8 @@ import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link LoginFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * This Fragment handles the login screen of the app.
+ * It interfaces with HttpClient class to login a user and retrieve family data.
  */
 public class LoginFragment extends Fragment {
     static final String DEFAULT_USERNAME = "skyler237";
@@ -63,14 +59,17 @@ public class LoginFragment extends Fragment {
      *
      * @return A new instance of fragment LoginFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static LoginFragment newInstance() {
         LoginFragment fragment = new LoginFragment();
 
         return fragment;
     }
-    //    private OnFragmentInteractionListener mListener;
 
+    /**
+     * Gets the username from the edit text on the Login screen.
+     *      **For testing purposes, also allows for a hardcoded default value if the edit text is blank
+     * @return - the username entered by the user (or a default value)
+     */
     public static String getUsername() {
         String typedUsername = usernameEditText.getText().toString();
 
@@ -81,6 +80,11 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    /**
+     * Gets the password from the edit text on the Login screen.
+     *      **For testing purposes, also allows for a hardcoded default value if the edit text is blank
+     * @return - the password entered by the user (or a default value)
+     */
     public static String getPassword() {
         String typedPassword = passwordEditText.getText().toString();
 
@@ -91,10 +95,11 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    public void setAuthorizationToken(String authorizationToken) {
-        this.authorizationToken = authorizationToken;
-    }
-
+    /**
+     * Gets the server host from the edit text on the Login screen.
+     *      **For testing purposes, also allows for a hardcoded default value if the edit text is blank
+     * @return - the server host entered by the user (or a default value)
+     */
     private String getServerHost() {
         String typedHost = serverHostEditText.getText().toString();
 
@@ -106,6 +111,11 @@ public class LoginFragment extends Fragment {
 
     }
 
+    /**
+     * Gets the server port from the edit text on the Login screen.
+     *      **For testing purposes, also allows for a hardcoded default value if the edit text is blank
+     * @return - the server port entered by the user (or a default value)
+     */
     private String getServerPort() {
         String typedPort = serverPortEditText.getText().toString();
 
@@ -114,14 +124,6 @@ public class LoginFragment extends Fragment {
         } else {
             return typedPort;
         }
-    }
-
-    public void setPersonId(String personId) {
-        this.personId = personId;
-    }
-
-    public void setLoginResponseBody(String loginResponseBody) {
-        this.loginResponseBody = loginResponseBody;
     }
 
     @Override
@@ -153,15 +155,20 @@ public class LoginFragment extends Fragment {
 
     }
 
+    /**
+     * Helper function to handle a press of the login button
+     * This function will attempt to logon the user and retrieve their data from the server.
+     */
     private void onButtonClicked() {
-        // Perform sign in here
-
+        // Set up the user
         currentUser = new User(getUsername(), getPassword());
         FamilyMapModel.SINGLETON.setCurrentUser(currentUser);
 
+        // Set up our http client
         FamilyMapModel.SINGLETON.httpClient = new HttpClient(getServerHost(), getServerPort());
         httpClient = FamilyMapModel.SINGLETON.httpClient;
 
+        // Attempt a login
         boolean loginSuccess = httpClient.login(currentUser);
         if (loginSuccess) {
             Toast.makeText(getContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
@@ -169,7 +176,7 @@ public class LoginFragment extends Fragment {
             Toast.makeText(getContext(), "Login Failed", Toast.LENGTH_LONG).show();
         }
 
-
+        // Retrieve the user's family data
         boolean retrieveDataSuccess = httpClient.retrieveFamilyData();
         if (retrieveDataSuccess) {
             Toast.makeText(getContext(), "Welcome, " + currentUser.getFirstName() + " " + currentUser.getLastName() + "!", Toast.LENGTH_LONG).show();

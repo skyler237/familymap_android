@@ -62,6 +62,16 @@ public class Person {
         }
     }
 
+    public Person(String personID, String firstname, String lastname, String gender, String spouseID, String fatherID, String motherID) {
+        setPersonId(personID);
+        setFirstName(firstname);
+        setLastName(lastname);
+        setGender(gender);
+        setFatherId(fatherID);
+        setMotherId(motherID);
+        setSpouseId(spouseID);
+    }
+
     /**
      * Returns a set of all the person IDs for the people in the current users father's side
      *
@@ -318,7 +328,62 @@ public class Person {
 
     @Override
     public boolean equals(Object o) {
-        return this.getClass().equals(o.getClass()) && ((Person) o).getPersonId().equals(this.getPersonId());
+
+        if(this.getClass().equals(o.getClass())) {
+            Person person = (Person) o;
+            boolean result = person.getPersonId().equals(this.getPersonId()) &&
+                    person.getPersonId().equals(this.getPersonId()) &&
+                    person.getFirstName().equals(this.getFirstName()) &&
+                    person.getLastName().equals(this.getLastName()) &&
+                    person.getGender().equals(this.getGender());
+
+            if(person.getSpouseId() == null) {
+                if(this.getSpouseId() != null) {
+                    return false;
+                }
+            }
+            else {
+                if(this.getSpouseId() == null) {
+                    return false;
+                }
+                else if (!person.getSpouseId().equals(this.getSpouseId())) {
+                    return false;
+                }
+            }
+
+            if(person.getFatherId() == null) {
+                if(this.getFatherId() != null) {
+                    return false;
+                }
+            }
+            else {
+                if(this.getFatherId() == null) {
+                    return false;
+                }
+                else if (!person.getFatherId().equals(this.getFatherId())) {
+                    return false;
+                }
+            }
+
+
+            if(person.getMotherId() == null) {
+                if(this.getMotherId() != null) {
+                    return false;
+                }
+            }
+            else {
+                if(this.getMotherId() == null) {
+                    return false;
+                }
+                else if (!person.getMotherId().equals(this.getMotherId())) {
+                    return false;
+                }
+            }
+            return result;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -377,6 +442,7 @@ public class Person {
                 return drawable;
             }
         }
+
     }
 
 }
