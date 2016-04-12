@@ -33,6 +33,10 @@ public class FamilyMapModel {
         return currentUser.relatedEvents;
     }
 
+    /**
+     * This gives the map of PersonIDs and the correlating people that are associated with the current user.
+     * @return - map of all people for this session
+     */
     public HashMap<String, Person> getUserPersonMap() {
         return currentUser.relatedPeople;
     }
@@ -45,6 +49,10 @@ public class FamilyMapModel {
         return currentUser.relatedPeople.get(personId);
     }
 
+    /**
+     * Populates all the family data in the model.
+     * Explicitly sets spouse, father, and mother based on IDs; implicitly sets children when a father is set
+     */
     public void populateFamilyData() {
         for (int i = 0; i < personIdList.size(); i++) {
             Person person = currentUser.relatedPeople.get(personIdList.get(i));
@@ -60,6 +68,10 @@ public class FamilyMapModel {
         }
     }
 
+    /**
+     * Adds a person to the model
+     * @param person - person to add
+     */
     public void addPerson(Person person) {
         currentUser.addRelatedPerson(person);
         personIdList.add(person.getPersonId());
@@ -102,6 +114,11 @@ public class FamilyMapModel {
 
     }
 
+    /**
+     * Searches all people in the model for a particular String
+     * @param searchText - text to search for
+     * @return - a set of all people who contain <code>searchText</code>
+     */
     public Set<Person> searchPeopleFor(String searchText) {
         Set<Person> searchResults = new HashSet<>();
 
@@ -116,6 +133,11 @@ public class FamilyMapModel {
         return searchResults;
     }
 
+    /**
+     * Searches all events in the model for a particular String
+     * @param searchText - text to search for
+     * @return - a set of all events who contain <code>searchText</code>
+     */
     public Set<Event> searchEventsFor(String searchText) {
         Set<Event> searchResults = new HashSet<>();
 
@@ -127,6 +149,10 @@ public class FamilyMapModel {
         return searchResults;
     }
 
+    /**
+     * Resets all the data in the model.
+     *  **Note: this does not clear filters or settings; they are preserved
+     */
     public void clearData() {
         currentUser.relatedEvents.clear();
         currentUser.relatedPeople.clear();

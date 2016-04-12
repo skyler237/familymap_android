@@ -30,6 +30,10 @@ import com.skyler.android.familymap.model.Person;
 
 import java.util.ArrayList;
 
+/**
+ * This class manages the map activity screen to display a particular event
+ * Provides much of the same functionality of the map fragment
+ */
 public class MapActivity extends AppCompatActivity {
 
     private static final float RELATIONSHIP_LINE_MAX_WIDTH = 12.0f;
@@ -138,7 +142,6 @@ public class MapActivity extends AppCompatActivity {
         updateMapType();
 
         mMapToolbar = (android.widget.Toolbar) findViewById(R.id.mapToolbar);
-//        mMapToolbar.setTitleTextColor(0xfff);
         setActionBar(mMapToolbar);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -166,7 +169,10 @@ public class MapActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Displays the event info of the selected marker in the preview area at the bottom of the screen
+     * @param marker - the selected marker for which we will display the info
+     */
     private void displayMarkerEventInfo(Marker marker) {
         mEventPreviewLayout.setClickable(true); // Make the preview clickable only if there is a person selected
         Event event = FamilyMapModel.SINGLETON.getEvent(marker.getSnippet());
@@ -182,6 +188,10 @@ public class MapActivity extends AppCompatActivity {
         mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
     }
 
+    /**
+     * Displays the event info of the selected event (which triggered the creation of this activity
+     * @param eventId - the selected event's id
+     */
     private void displayEventInfo(String eventId) {
         mEventPreviewLayout.setClickable(true); // Make the preview clickable only if there is a person selected
         Event event = FamilyMapModel.SINGLETON.getEvent(eventId);
@@ -312,6 +322,9 @@ public class MapActivity extends AppCompatActivity {
         mRelationshipLines.clear();
     }
 
+    /**
+     * Sets the map type to reflect the current setting
+     */
     private void updateMapType() {
         switch (FamilyMapModel.SINGLETON.mSettings.getMapType()) {
 

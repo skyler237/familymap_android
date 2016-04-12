@@ -40,6 +40,11 @@ public class Filters {
         }
     }
 
+    /**
+     * Allows us to turn a particular filter on or off
+     * @param eventType - the event type to turn on or off
+     * @param on_off - the boolean value we want to set the filter to (true = on, false = off)
+     */
     public void setEventFilter(String eventType, boolean on_off) {
         if (eventFiltersOn.containsKey(eventType.toLowerCase())) {
             eventFiltersOn.put(eventType.toLowerCase(), on_off); // Overwrite the event filter boolean if it exists

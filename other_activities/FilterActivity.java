@@ -19,6 +19,9 @@ import com.skyler.android.familymap.model.FamilyMapModel;
 
 import java.util.List;
 
+/**
+ * Handles the filter activity screen for the app
+ */
 public class FilterActivity extends AppCompatActivity {
     private RecyclerView mFilterRecyclerView;
     private RecyclerView.Adapter mFilterAdapter;
@@ -68,6 +71,9 @@ public class FilterActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Inner class used to implement the recycler view for filters
+     */
     private class FilterItemHolder extends RecyclerView.ViewHolder {
         private String mEventType;
 
@@ -98,6 +104,9 @@ public class FilterActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Inner class used to help implement the filter recycler view
+     */
     private class FilterItemAdapter extends RecyclerView.Adapter<FilterItemHolder> {
         private List<String> mEventTypes;
 

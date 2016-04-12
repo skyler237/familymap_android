@@ -51,8 +51,6 @@ public class HttpClient {
      * Attempts to log <code>user</code> in to the current server
      * @param user - The user to be logged in
      * @return - returns true if login was successful and false if not.
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     public boolean login(User user) {
         FamilyMapModel.SINGLETON.setCurrentUser(user);
@@ -65,6 +63,10 @@ public class HttpClient {
         return false;
     }
 
+    /**
+     * Attempts to retrieve the family data for the current user. Stores data in the model
+     * @return - true = data retrieval succeeded; false = data retrieval failed
+     */
     public boolean retrieveFamilyData() {
         try {
             return new RetrieveFamilyDataTask().execute().get();
@@ -74,6 +76,10 @@ public class HttpClient {
         return false;
     }
 
+    /**
+     * Attempts to resync the family data for the current user. Clears old data and stores new data in the model
+     * @return - true = data synchronization succeeded; false = data synchronization failed
+     */
     public boolean resyncData() {
         try {
             return new ResyncDataTask().execute().get();
@@ -88,7 +94,7 @@ public class HttpClient {
      * Attempts to log in the specified user at the specified url
      *
      * @param user - the user to be logged in
-     * @return
+     * @return - true = login successful; false = login failed
      */
     private boolean performLogin(User user) throws MalformedURLException {
         URL url = new URL(baseUrl + "/user/login");
@@ -97,8 +103,6 @@ public class HttpClient {
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
-//                connection.setDoInput(true);
-//                connection.addRequestProperty("Accept", "html/text");
             Log.i("LoginTask", "Trying to connect...");
 
             connection.connect();
@@ -108,9 +112,6 @@ public class HttpClient {
 
             // Format username and password as JSON string
             JSONObject requestBodyJSON = new JSONObject();
-            //FOR TESTING!
-//            requestBodyJSON.put("username", "skyler237");
-//            requestBodyJSON.put("password", "pw");
             requestBodyJSON.put("username", user.getUsername());
             requestBodyJSON.put("password", user.getPassword());
 
@@ -345,6 +346,9 @@ public class HttpClient {
 
     }
 
+    /**
+     * Extension of <code>AsyncTask</code> that attempts to log in the current user
+     */
     private class LoginTask extends AsyncTask<URL, Integer, Boolean> {
 
         @Override
@@ -365,6 +369,9 @@ public class HttpClient {
         }
     }
 
+    /**
+     * Extension of <code>AsyncTask</code> that attempts to retrieve all data for the current user
+     */
     private class RetrieveFamilyDataTask extends AsyncTask<URL, Integer, Boolean> {
 
         @Override
@@ -409,6 +416,9 @@ public class HttpClient {
         }
     }
 
+    /**
+     * Extension of <code>AsyncTask</code> that attempts to resync the data for the current user
+     */
     class ResyncDataTask extends AsyncTask<URL, Integer, Boolean> {
         HttpClient httpClient = FamilyMapModel.SINGLETON.httpClient;
         User currentUser = FamilyMapModel.SINGLETON.currentUser;

@@ -31,6 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Manages the Search Activity of the app
+ */
 public class SearchActivity extends AppCompatActivity {
     private RecyclerView mSearchRecyclerView;
     private RecyclerView.Adapter mSearchAdapter;
@@ -64,6 +67,7 @@ public class SearchActivity extends AppCompatActivity {
         });
 
         mSearchField = (EditText) findViewById(R.id.search_field);
+        // Set a listener to continuously update search results whenever the text is changed
         mSearchField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -130,6 +134,9 @@ public class SearchActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Inner class to help implement the search item recycler view
+     */
     private class SearchItemHolder extends RecyclerView.ViewHolder {
         private Event mEvent;
         private Person mPerson;
@@ -187,6 +194,9 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Inner class to help implement the search item recycler view
+     */
     private class SearchItemAdapter extends RecyclerView.Adapter<SearchItemHolder> {
         private List<Event> mEventList;
         private List<Person> mPersonList;

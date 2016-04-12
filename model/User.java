@@ -1,6 +1,7 @@
 package com.skyler.android.familymap.model;
 
 /**
+ * This class extends Person and contains additional information about login and network authorization
  * Created by Skyler on 3/15/2016.
  */
 public class User extends Person {

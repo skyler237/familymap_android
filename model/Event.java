@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
+ * This class holds the model information for an event
  * Created by Skyler on 3/15/2016.
  */
 public class Event implements Comparable {
@@ -149,9 +150,6 @@ public class Event implements Comparable {
         this.year = year;
     }
 
-//    public String getDescendant() {
-//        return descendant;
-//    }
 
     public void setDescendant(String descendant) {
         this.descendant = descendant;
@@ -245,8 +243,10 @@ public class Event implements Comparable {
         return color;
     }
 
+    /**
+     * Assigns a certain color to each type of marker
+     */
     public void setColor() {
-        // TODO: 3/25/2016 I think there is a bug with some of the event colors
         switch (description) {
             case "baptism":
                 color = BitmapDescriptorFactory.HUE_BLUE;
@@ -277,6 +277,10 @@ public class Event implements Comparable {
         }
     }
 
+    /**
+     * Gets the string version of the event info
+     * @return - String of event info
+     */
     public String getInfoText() {
         String str = getDescription() + ": " + city + ", " + country + " (" + year + ")";
 

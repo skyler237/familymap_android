@@ -23,6 +23,7 @@ import static com.skyler.android.familymap.model.Person.Relationship.MOTHER;
 import static com.skyler.android.familymap.model.Person.Relationship.SPOUSE;
 
 /**
+ * This class contains the information relating to a person in our model
  * Created by Skyler on 3/15/2016.
  */
 public class Person {
@@ -41,6 +42,55 @@ public class Person {
     private String fatherId;
     private String motherId;
     private String spouseId;
+
+    public enum Relationship {
+        FATHER, MOTHER, SPOUSE, CHILD;
+
+        @Override
+        public String toString() {
+            switch (this) {
+
+                case FATHER:
+                    return "Father";
+
+                case MOTHER:
+                    return "Mother";
+
+                case SPOUSE:
+                    return "Spouse";
+
+                case CHILD:
+                    return "Child";
+
+            }
+            return null;
+        }
+    }
+
+    public enum Gender {
+        MALE, FEMALE;
+
+        @Override
+        public String toString() {
+            if (this.name().equals("MALE")) {
+                return "Male";
+            } else {
+                return "Female";
+            }
+        }
+
+
+        public Drawable getDrawable(Context context) {
+            if (this.name().equals("MALE")) {
+                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_male).colorRes(R.color.male_icon).sizeDp(40);
+                return drawable;
+            } else {
+                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_female).colorRes(R.color.female_icon).sizeDp(40);
+                return drawable;
+            }
+        }
+
+    }
 
     public Person() {
 
@@ -70,6 +120,11 @@ public class Person {
         setFatherId(fatherID);
         setMotherId(motherID);
         setSpouseId(spouseID);
+    }
+
+    @Override
+    public int hashCode() {
+        return personId.hashCode();
     }
 
     /**
@@ -118,11 +173,11 @@ public class Person {
         return ancestorIds;
     }
 
-    @Override
-    public int hashCode() {
-        return personId.hashCode();
-    }
-
+    /**
+     * Calculates the relationship between the current person and <code>otherPerson</code>
+     * @param otherPerson - the person with whom the relationship is being evaluated
+     * @return - returns a Relationship enumerated type of the relationship of <code>this</code> to <code>otherPerson</code>
+     */
     public Relationship getRelationshipTo(Person otherPerson) {
         // Check if the "otherPerson" is related to this person
         if (this.fatherId != null && this.motherId != null) {
@@ -152,6 +207,10 @@ public class Person {
         return null;
     }
 
+    /**
+     * Adds a person with whom the current person is related and fills in the appropriate data field (mother, spouse, etc.)
+     * @param person - the person being added
+     */
     public void addRelatedPerson(Person person) {
         relatedPeople.put(person.personId, person);
         Relationship relationship = getRelationshipTo(person);
@@ -177,6 +236,10 @@ public class Person {
         }
     }
 
+    /**
+     * Returns a full set of people who consist of this person's family members (used in the Person Activity)
+     * @return - set of all people in the current person's family (parents, spouse, children)
+     */
     public List<Person> getFamily() {
         List<Person> family = new ArrayList<>();
         if (spouseId != null) {
@@ -277,6 +340,11 @@ public class Person {
         this.spouseId = spouseId;
     }
 
+    /**
+     * Returns a specific event based on eventId
+     * @param eventId - the event ID of the desired event
+     * @return - the specified event
+     */
     public Event getEvent(String eventId) {
         Event desiredEvent = null;
         for (Event event :
@@ -336,7 +404,7 @@ public class Person {
                     person.getFirstName().equals(this.getFirstName()) &&
                     person.getLastName().equals(this.getLastName()) &&
                     person.getGender().equals(this.getGender());
-
+            // Protect against possible null objects
             if(person.getSpouseId() == null) {
                 if(this.getSpouseId() != null) {
                     return false;
@@ -396,53 +464,6 @@ public class Person {
         return (getFirstName() + " " + getLastName()).toLowerCase();
     }
 
-    public enum Relationship {
-        FATHER, MOTHER, SPOUSE, CHILD;
 
-        @Override
-        public String toString() {
-            switch (this) {
-
-                case FATHER:
-                    return "Father";
-
-                case MOTHER:
-                    return "Mother";
-
-                case SPOUSE:
-                    return "Spouse";
-
-                case CHILD:
-                    return "Child";
-
-            }
-            return null;
-        }
-    }
-
-    public enum Gender {
-        MALE, FEMALE;
-
-        @Override
-        public String toString() {
-            if (this.name().equals("MALE")) {
-                return "Male";
-            } else {
-                return "Female";
-            }
-        }
-
-
-        public Drawable getDrawable(Context context) {
-            if (this.name().equals("MALE")) {
-                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_male).colorRes(R.color.male_icon).sizeDp(40);
-                return drawable;
-            } else {
-                Drawable drawable = new IconDrawable(context, Iconify.IconValue.fa_female).colorRes(R.color.female_icon).sizeDp(40);
-                return drawable;
-            }
-        }
-
-    }
 
 }
