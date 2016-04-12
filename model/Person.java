@@ -180,10 +180,14 @@ public class Person {
      */
     public Relationship getRelationshipTo(Person otherPerson) {
         // Check if the "otherPerson" is related to this person
-        if (this.fatherId != null && this.motherId != null) {
-            if ((this.fatherId.equals(otherPerson.personId)) ||
-                    (this.motherId.equals(otherPerson.personId))) {
+        if (this.fatherId != null) {
+            if (this.fatherId.equals(otherPerson.personId)) {
                 // This person is the child of other person
+                return CHILD;
+            }
+        }
+        if(this.motherId != null) {
+            if(this.motherId.equals(otherPerson.personId)) {
                 return CHILD;
             }
         }

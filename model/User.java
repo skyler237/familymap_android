@@ -19,6 +19,10 @@ public class User extends Person {
         this.password = password;
     }
 
+    public User() {
+        // Do nothing
+    }
+
     public String getUsername() {
         return username;
     }

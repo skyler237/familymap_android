@@ -61,6 +61,25 @@ public class Event implements Comparable {
         setColor();
     }
 
+    /**
+     * Simple constructor to help with testing event comparing
+     * @param eventId - the event's ID
+     * @param description - the type of event
+     * @param year - the year the event occurred
+     */
+    public Event(String eventId, String description, String year) {
+        setEventId(eventId);
+        setDescription(description);
+        setYear(year);
+
+        // We won't directly use these for testing, so we inflate them with default non-null values
+        this.personId = "personId";
+        setLatitude(0.0);
+        setLongitude(0.0);
+        setCountry("country");
+        setCity("city");
+    }
+
     @Override
     public String toString() {
         String str = getPersonName() + "\n";
@@ -198,7 +217,7 @@ public class Event implements Comparable {
             // Deaths are always last
             if (this.description.toLowerCase().equals("death") &&
                     !((Event) another).description.toLowerCase().equals("death")) {
-                return 1;
+                return OTHER_COMES_FIRST;
             } else if (!this.description.toLowerCase().equals("death") &&
                     ((Event) another).description.toLowerCase().equals("death")) {
                 return THIS_COMES_FIRST;

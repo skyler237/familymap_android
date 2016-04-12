@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * This class holds all the aggregate information that makes up the model of this app
  * Created by Skyler on 3/18/2016.
  */
 public class FamilyMapModel {
@@ -22,7 +23,7 @@ public class FamilyMapModel {
     public boolean resyncEventMarkers = false;
 
     private FamilyMapModel() {
-
+        currentUser = new User();
     }
 
     public void setCurrentUser(User user) {
